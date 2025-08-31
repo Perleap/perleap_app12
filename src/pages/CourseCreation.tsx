@@ -8,24 +8,67 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { 
+  ArrowLeft, 
+  Users, 
   BookOpen, 
-  Brain,
+  Calendar,
   Target,
-  Users,
-  ArrowRight,
-  ArrowLeft,
+  Settings,
+  Edit,
+  Trash2,
+  Paperclip,
+  Brain,
   CheckCircle,
+  Plus,
   Sparkles,
-  Plus
+  Upload,
+  ArrowRight
 } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ActivityForm } from "@/components/ActivityForm";
+import { FileUpload } from "@/components/FileUpload";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const CourseCreation = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { user } = useAuth();
+  
   const [currentStep, setCurrentStep] = useState(1);
   const [generatedCRA, setGeneratedCRA] = useState(false);
+  const [createdCourseId, setCreatedCourseId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [activities, setActivities] = useState<any[]>([]);
+  const [courseFiles, setCourseFiles] = useState<any[]>([]);
+  const [isFileDialogOpen, setIsFileDialogOpen] = useState(false);
+  const [activityFormData, setActivityFormData] = useState({
+    title: '',
+    component_name: '',
+    sub_component_name: '',
+    goal: '',
+    activity_content: '',
+    custom_focus: '',
+    difficulty: 'auto',
+    length: 'auto'
+  });
   
-  const totalSteps = 4;
+  // Form data state
+  const [courseData, setCourseData] = useState({
+    title: '',
+    gradeLevel: '',
+    subject: '',
+    description: '',
+    objectives: '',
+    prerequisites: '',
+    resources: ''
+  });
+  
+  const totalSteps = 5;
   const progress = (currentStep / totalSteps) * 100;
 
   const mockCRAData = [
@@ -38,6 +81,215 @@ export const CourseCreation = () => {
     setGeneratedCRA(true);
   };
 
+  const handleInputChange = (field: string, value: string) => {
+    setCourseData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleActivityInputChange = (field: string, value: string) => {
+    setActivityFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const addActivity = async () => {
+    if (!activityFormData.title.trim()) return;
+
+    // If course hasn't been created yet, store activities temporarily
+    if (!createdCourseId) {
+      const tempActivity = {
+        id: `temp-${Date.now()}`,
+        ...activityFormData,
+        temp: true
+      };
+      setActivities(prev => [...prev, tempActivity]);
+      
+      // Reset form
+      setActivityFormData({
+        title: '',
+        component_name: '',
+        sub_component_name: '',
+        goal: '',
+        activity_content: '',
+        custom_focus: '',
+        difficulty: 'auto',
+        length: 'auto'
+      });
+
+      toast({
+        title: "Activity Added",
+        description: "Activity will be saved when you create the course."
+      });
+      return;
+    }
+
+    // If course exists, save to database
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('activities')
+        .insert([{
+          ...activityFormData,
+          course_id: createdCourseId,
+          type: 'Training',
+          status: 'active'
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setActivities(prev => [...prev, data]);
+      
+      // Reset form
+      setActivityFormData({
+        title: '',
+        component_name: '',
+        sub_component_name: '',
+        goal: '',
+        activity_content: '',
+        custom_focus: '',
+        difficulty: 'auto',
+        length: 'auto'
+      });
+
+      toast({
+        title: "Success",
+        description: "Activity added successfully!"
+      });
+    } catch (error) {
+      console.error('Error creating activity:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create activity. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createCourse = async () => {
+    if (!user) return null;
+    
+    setLoading(true);
+    try {
+      // Get the teacher's name from profile
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('full_name, email')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      const teacherName = profileData?.full_name || 
+                         profileData?.email?.split('@')[0] || 
+                         'Unknown Teacher';
+
+      const { data, error } = await supabase
+        .from('courses')
+        .insert([{
+          title: courseData.title,
+          subject: courseData.subject,
+          grade_level: courseData.gradeLevel,
+          description: courseData.description,
+          teacher_id: user.id,
+          teacher_name: teacherName,
+          status: 'active'
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      setCreatedCourseId(data.id);
+      
+      // Create default teacher activity
+      const defaultActivity = {
+        title: `${teacherName}'s Perleap`,
+        component_name: 'Teacher Assistant',
+        sub_component_name: 'AI Tutor',
+        goal: `Chat with an AI version of ${teacherName} for personalized learning support and guidance.`,
+        activity_content: `This is an AI-powered teaching assistant that represents ${teacherName}. Students can ask questions, get help with coursework, and receive personalized guidance based on the course curriculum.`,
+        custom_focus: 'Personalized tutoring and course support',
+        difficulty: 'adaptive',
+        length: 'auto',
+        course_id: data.id,
+        type: 'Training',
+        status: 'active'
+      };
+
+      const { error: activityError } = await supabase
+        .from('activities')
+        .insert([defaultActivity]);
+
+      if (activityError) {
+        console.error('Error creating default activity:', activityError);
+        // Don't fail the whole process if default activity creation fails
+      }
+      
+      // Save any temporary activities to the database
+      if (activities.length > 0) {
+        const tempActivities = activities.filter(act => act.temp);
+        if (tempActivities.length > 0) {
+          const activitiesToInsert = tempActivities.map(act => ({
+            title: act.title,
+            component_name: act.component_name,
+            sub_component_name: act.sub_component_name,
+            goal: act.goal,
+            activity_content: act.activity_content,
+            custom_focus: act.custom_focus,
+            difficulty: act.difficulty,
+            length: act.length,
+            course_id: data.id,
+            type: 'Training',
+            status: 'active'
+          }));
+
+          const { data: savedActivities, error: actError } = await supabase
+            .from('activities')
+            .insert(activitiesToInsert)
+            .select();
+
+          if (!actError && savedActivities) {
+            // Replace temp activities with real ones
+            setActivities(prev => [
+              ...prev.filter(act => !act.temp),
+              ...savedActivities
+            ]);
+          }
+        }
+      }
+
+      toast({
+        title: "Success",
+        description: "Course created successfully with default teacher activity!"
+      });
+      
+      return data.id;
+    } catch (error) {
+      console.error('Error creating course:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create course. Please try again.",
+        variant: "destructive"
+      });
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleNextStep = async () => {
+    // If moving from step 3 to 4, create the course first
+    if (currentStep === 3 && !createdCourseId) {
+      const courseId = await createCourse();
+      if (!courseId) return; // Don't proceed if course creation failed
+    }
+    
+    setCurrentStep(Math.min(totalSteps, currentStep + 1));
+  };
+
+  const handleFinish = () => {
+    navigate('/teacher/classes');
+  };
+
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
@@ -48,11 +300,16 @@ export const CourseCreation = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="courseName">Course Name</Label>
-                  <Input id="courseName" placeholder="e.g., Advanced Mathematics" />
+                  <Input 
+                    id="courseName" 
+                    placeholder="e.g., Advanced Mathematics"
+                    value={courseData.title}
+                    onChange={(e) => handleInputChange('title', e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="gradeLevel">Grade Level</Label>
-                  <Select>
+                  <Select value={courseData.gradeLevel} onValueChange={(value) => handleInputChange('gradeLevel', value)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select grade level" />
                     </SelectTrigger>
@@ -66,15 +323,15 @@ export const CourseCreation = () => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="subject">Subject Area</Label>
-                  <Select>
+                  <Select value={courseData.subject} onValueChange={(value) => handleInputChange('subject', value)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select subject" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="math">Mathematics</SelectItem>
-                      <SelectItem value="science">Science</SelectItem>
-                      <SelectItem value="english">English</SelectItem>
-                      <SelectItem value="history">History</SelectItem>
+                      <SelectItem value="Mathematics">Mathematics</SelectItem>
+                      <SelectItem value="Science">Science</SelectItem>
+                      <SelectItem value="English">English</SelectItem>
+                      <SelectItem value="History">History</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -99,6 +356,8 @@ export const CourseCreation = () => {
                 id="description" 
                 placeholder="Describe the course objectives, key topics, and learning outcomes..."
                 className="min-h-[100px]"
+                value={courseData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
               />
             </div>
           </div>
@@ -108,31 +367,236 @@ export const CourseCreation = () => {
         return (
           <div className="space-y-6">
             <div>
-              <h3 className="text-xl font-semibold text-primary mb-4">Learning Objectives</h3>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="objectives">Course Objectives</Label>
-                  <Textarea 
-                    id="objectives" 
-                    placeholder="List the main learning objectives for this course..."
-                    className="min-h-[120px]"
+              <h3 className="text-xl font-semibold text-primary mb-4">Learning Objectives & Activities</h3>
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="objectives">Course Objectives</Label>
+                    <Textarea 
+                      id="objectives" 
+                      placeholder="List the main learning objectives for this course..."
+                      className="min-h-[120px]"
+                      value={courseData.objectives}
+                      onChange={(e) => handleInputChange('objectives', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="prerequisites">Prerequisites</Label>
+                    <Textarea 
+                      id="prerequisites" 
+                      placeholder="What should students know before taking this course?"
+                      className="min-h-[80px]"
+                      value={courseData.prerequisites}
+                      onChange={(e) => handleInputChange('prerequisites', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="resources">Additional Resources</Label>
+                    <Textarea 
+                      id="resources" 
+                      placeholder="List textbooks, websites, or other resources..."
+                      className="min-h-[80px]"
+                      value={courseData.resources}
+                      onChange={(e) => handleInputChange('resources', e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* File Upload Section */}
+                <div>
+                  <h4 className="text-lg font-semibold text-primary mb-4 flex items-center space-x-2">
+                    <Upload className="w-5 h-5" />
+                    <span>Course Files</span>
+                  </h4>
+                  <p className="text-muted-foreground mb-4">
+                    Upload files that will be available to students in this course.
+                  </p>
+                  
+                  <FileUpload
+                    courseId={createdCourseId || undefined}
+                    onFileUploaded={(file) => {
+                      setCourseFiles(prev => [...prev, file]);
+                      toast({
+                        title: "File Added",
+                        description: `${file.name} will be available to students.`
+                      });
+                    }}
+                    existingFiles={courseFiles}
+                    onFileRemove={(fileId) => {
+                      setCourseFiles(prev => prev.filter(f => f.id !== fileId));
+                    }}
+                    accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.png,.jpg,.jpeg,.gif"
+                    maxSize={10}
+                    multiple={true}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="prerequisites">Prerequisites</Label>
-                  <Textarea 
-                    id="prerequisites" 
-                    placeholder="What should students know before taking this course?"
-                    className="min-h-[80px]"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="resources">Additional Resources</Label>
-                  <Textarea 
-                    id="resources" 
-                    placeholder="List textbooks, websites, or other resources..."
-                    className="min-h-[80px]"
-                  />
+
+                <Separator />
+
+                {/* Activity Creation Section */}
+                <div>
+                  <h4 className="text-lg font-semibold text-primary mb-4">Add Course Activities</h4>
+                  <p className="text-muted-foreground mb-4">
+                    Create activities for your course. You can add multiple activities here.
+                  </p>
+                  
+                  {/* Activity Creation Form */}
+                  <Card className="bg-gradient-card shadow-soft mb-4">
+                    <CardHeader>
+                      <CardTitle className="flex items-center space-x-2">
+                        <Plus className="w-5 h-5 text-primary" />
+                        <span>Create New Activity</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="activity_title">Activity Name *</Label>
+                          <Input
+                            id="activity_title"
+                            value={activityFormData.title}
+                            onChange={(e) => handleActivityInputChange('title', e.target.value)}
+                            placeholder="Enter activity name"
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="activity_component">Component Name</Label>
+                          <Input
+                            id="activity_component"
+                            value={activityFormData.component_name}
+                            onChange={(e) => handleActivityInputChange('component_name', e.target.value)}
+                            placeholder="e.g., Algebra"
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="activity_sub_component">Sub Component Name</Label>
+                          <Input
+                            id="activity_sub_component"
+                            value={activityFormData.sub_component_name}
+                            onChange={(e) => handleActivityInputChange('sub_component_name', e.target.value)}
+                            placeholder="e.g., Linear Equations"
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="activity_focus">Custom Focus</Label>
+                          <Input
+                            id="activity_focus"
+                            value={activityFormData.custom_focus}
+                            onChange={(e) => handleActivityInputChange('custom_focus', e.target.value)}
+                            placeholder="Specific learning focus"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="activity_goal">Activity Goal</Label>
+                        <Textarea
+                          id="activity_goal"
+                          value={activityFormData.goal}
+                          onChange={(e) => handleActivityInputChange('goal', e.target.value)}
+                          placeholder="Describe the learning goal for this activity"
+                          className="min-h-[80px]"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="activity_content">Activity Content</Label>
+                        <Textarea
+                          id="activity_content"
+                          value={activityFormData.activity_content}
+                          onChange={(e) => handleActivityInputChange('activity_content', e.target.value)}
+                          placeholder="Detailed content and instructions for the activity"
+                          className="min-h-[120px]"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="activity_difficulty">Difficulty Level</Label>
+                          <Select value={activityFormData.difficulty} onValueChange={(value) => handleActivityInputChange('difficulty', value)}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select difficulty" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="easy">Easy</SelectItem>
+                              <SelectItem value="medium">Medium</SelectItem>
+                              <SelectItem value="hard">Hard</SelectItem>
+                              <SelectItem value="auto">Auto</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="activity_length">Activity Length</Label>
+                          <Select value={activityFormData.length} onValueChange={(value) => handleActivityInputChange('length', value)}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select length" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="short">Short</SelectItem>
+                              <SelectItem value="medium">Medium</SelectItem>
+                              <SelectItem value="long">Long</SelectItem>
+                              <SelectItem value="auto">Auto</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end pt-4">
+                        <Button 
+                          onClick={addActivity}
+                          disabled={!activityFormData.title.trim() || loading}
+                          className="bg-gradient-hero shadow-glow"
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          {loading ? 'Adding...' : 'Add Activity'}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Created Activities List */}
+                  {activities.length > 0 && (
+                    <Card className="bg-gradient-card shadow-soft">
+                      <CardHeader>
+                        <CardTitle className="flex items-center space-x-2">
+                          <Calendar className="w-5 h-5 text-primary" />
+                          <span>Created Activities ({activities.length})</span>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {activities.map((activity) => (
+                            <div key={activity.id} className="p-4 border rounded-lg bg-accent/20">
+                              <div className="flex items-start justify-between">
+                                <div className="space-y-1">
+                                  <h4 className="font-medium text-primary">{activity.title}</h4>
+                                  {activity.component_name && (
+                                    <p className="text-sm text-muted-foreground">
+                                      Component: {activity.component_name}
+                                      {activity.sub_component_name && ` > ${activity.sub_component_name}`}
+                                    </p>
+                                  )}
+                                  {activity.goal && (
+                                    <p className="text-sm text-muted-foreground">{activity.goal}</p>
+                                  )}
+                                </div>
+                                <div className="flex space-x-2">
+                                  <Badge variant="secondary">{activity.difficulty}</Badge>
+                                  <Badge variant="outline">{activity.length}</Badge>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
                 </div>
               </div>
             </div>
@@ -208,6 +672,186 @@ export const CourseCreation = () => {
         return (
           <div className="space-y-6">
             <div>
+              <h3 className="text-xl font-semibold text-primary mb-4">Add Course Activities</h3>
+              <p className="text-muted-foreground mb-6">
+                Create activities for your course. You can add multiple activities and continue adding more after the course is created.
+              </p>
+              
+              <div className="space-y-6">
+                {/* Activity Creation Form */}
+                <Card className="bg-gradient-card shadow-soft">
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Plus className="w-5 h-5 text-primary" />
+                      <span>Create New Activity</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="activity_title">Activity Name *</Label>
+                        <Input
+                          id="activity_title"
+                          value={activityFormData.title}
+                          onChange={(e) => handleActivityInputChange('title', e.target.value)}
+                          placeholder="Enter activity name"
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="activity_component">Component Name</Label>
+                        <Input
+                          id="activity_component"
+                          value={activityFormData.component_name}
+                          onChange={(e) => handleActivityInputChange('component_name', e.target.value)}
+                          placeholder="e.g., Algebra"
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="activity_sub_component">Sub Component Name</Label>
+                        <Input
+                          id="activity_sub_component"
+                          value={activityFormData.sub_component_name}
+                          onChange={(e) => handleActivityInputChange('sub_component_name', e.target.value)}
+                          placeholder="e.g., Linear Equations"
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="activity_focus">Custom Focus</Label>
+                        <Input
+                          id="activity_focus"
+                          value={activityFormData.custom_focus}
+                          onChange={(e) => handleActivityInputChange('custom_focus', e.target.value)}
+                          placeholder="Specific learning focus"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="activity_goal">Activity Goal</Label>
+                      <Textarea
+                        id="activity_goal"
+                        value={activityFormData.goal}
+                        onChange={(e) => handleActivityInputChange('goal', e.target.value)}
+                        placeholder="Describe the learning goal for this activity"
+                        className="min-h-[80px]"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="activity_content">Activity Content</Label>
+                      <Textarea
+                        id="activity_content"
+                        value={activityFormData.activity_content}
+                        onChange={(e) => handleActivityInputChange('activity_content', e.target.value)}
+                        placeholder="Detailed content and instructions for the activity"
+                        className="min-h-[120px]"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="activity_difficulty">Difficulty Level</Label>
+                        <Select value={activityFormData.difficulty} onValueChange={(value) => handleActivityInputChange('difficulty', value)}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select difficulty" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="easy">Easy</SelectItem>
+                            <SelectItem value="medium">Medium</SelectItem>
+                            <SelectItem value="hard">Hard</SelectItem>
+                            <SelectItem value="auto">Auto</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="activity_length">Activity Length</Label>
+                        <Select value={activityFormData.length} onValueChange={(value) => handleActivityInputChange('length', value)}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select length" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="short">Short</SelectItem>
+                            <SelectItem value="medium">Medium</SelectItem>
+                            <SelectItem value="long">Long</SelectItem>
+                            <SelectItem value="auto">Auto</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end pt-4">
+                      <Button 
+                        onClick={addActivity}
+                        disabled={!activityFormData.title.trim() || !createdCourseId || loading}
+                        className="bg-gradient-hero shadow-glow"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        {loading ? 'Adding...' : 'Add Activity'}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Created Activities List */}
+                {activities.length > 0 && (
+                  <Card className="bg-gradient-card shadow-soft">
+                    <CardHeader>
+                      <CardTitle className="flex items-center space-x-2">
+                        <Calendar className="w-5 h-5 text-primary" />
+                        <span>Created Activities ({activities.length})</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {activities.map((activity, index) => (
+                          <div key={activity.id} className="p-4 border rounded-lg bg-accent/20">
+                            <div className="flex items-start justify-between">
+                              <div className="space-y-1">
+                                <h4 className="font-medium text-primary">{activity.title}</h4>
+                                {activity.component_name && (
+                                  <p className="text-sm text-muted-foreground">
+                                    Component: {activity.component_name}
+                                    {activity.sub_component_name && ` > ${activity.sub_component_name}`}
+                                  </p>
+                                )}
+                                {activity.goal && (
+                                  <p className="text-sm text-muted-foreground">{activity.goal}</p>
+                                )}
+                              </div>
+                              <div className="flex space-x-2">
+                                <Badge variant="secondary">{activity.difficulty}</Badge>
+                                <Badge variant="outline">{activity.length}</Badge>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {!createdCourseId && (
+                  <div className="text-center py-8">
+                    <Target className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <h4 className="text-lg font-semibold text-primary mb-2">Course Created Successfully</h4>
+                    <p className="text-muted-foreground">
+                      You can now add activities to your course using the form above.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+        
+      case 5:
+        return (
+          <div className="space-y-6">
+            <div>
               <h3 className="text-xl font-semibold text-primary mb-4">Review & Create</h3>
               <p className="text-muted-foreground mb-6">
                 Review your course setup before creating your Perleap course.
@@ -223,10 +867,10 @@ export const CourseCreation = () => {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div><span className="text-muted-foreground">Name:</span> Advanced Mathematics</div>
-                      <div><span className="text-muted-foreground">Grade:</span> Grade 11</div>
-                      <div><span className="text-muted-foreground">Subject:</span> Mathematics</div>
-                      <div><span className="text-muted-foreground">Duration:</span> Full Year</div>
+                      <div><span className="text-muted-foreground">Name:</span> {courseData.title || 'Not specified'}</div>
+                      <div><span className="text-muted-foreground">Grade:</span> Grade {courseData.gradeLevel || 'Not specified'}</div>
+                      <div><span className="text-muted-foreground">Subject:</span> {courseData.subject || 'Not specified'}</div>
+                      <div><span className="text-muted-foreground">Status:</span> Ready to launch</div>
                     </div>
                   </CardContent>
                 </Card>
@@ -252,7 +896,7 @@ export const CourseCreation = () => {
                     <CheckCircle className="w-12 h-12 text-success mx-auto mb-4" />
                     <h4 className="text-lg font-semibold text-primary mb-2">Ready to Launch</h4>
                     <p className="text-muted-foreground mb-4">
-                      Your Perleap course is ready! You can start creating activities and inviting students.
+                      Your Perleap course is ready! You can start inviting students and managing activities.
                     </p>
                   </div>
                 </div>
@@ -289,6 +933,7 @@ export const CourseCreation = () => {
               <span>Basic Info</span>
               <span>Objectives</span>
               <span>CRA Generation</span>
+              <span>Activities</span>
               <span>Review</span>
             </div>
           </CardContent>
@@ -302,7 +947,7 @@ export const CourseCreation = () => {
         </Card>
 
         {/* Navigation */}
-        <div className="flex justify-between">
+        <div className="flex justify-between items-center">
           <Button 
             variant="outline" 
             onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
@@ -312,21 +957,57 @@ export const CourseCreation = () => {
             Previous
           </Button>
           
-          {currentStep < totalSteps ? (
-            <Button 
-              onClick={() => setCurrentStep(Math.min(totalSteps, currentStep + 1))}
-              disabled={currentStep === 3 && !generatedCRA}
-              className="bg-gradient-hero shadow-glow"
-            >
-              Next
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          ) : (
-            <Button className="bg-gradient-hero shadow-glow">
-              <Plus className="w-4 h-4 mr-2" />
-              Create Course
-            </Button>
-          )}
+          <div className="flex items-center space-x-4">
+            {/* File attachment button - always visible */}
+            <Dialog open={isFileDialogOpen} onOpenChange={setIsFileDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Paperclip className="w-4 h-4 mr-2" />
+                  Attach Files
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Upload Course Files</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <FileUpload
+                    courseId={createdCourseId || undefined}
+                    onFileUploaded={(file) => {
+                      setCourseFiles(prev => [...prev, file]);
+                      toast({
+                        title: "File Added",
+                        description: `${file.name} will be available to students.`
+                      });
+                    }}
+                    existingFiles={courseFiles}
+                    onFileRemove={(fileId) => {
+                      setCourseFiles(prev => prev.filter(f => f.id !== fileId));
+                    }}
+                    accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.png,.jpg,.jpeg,.gif"
+                    maxSize={10}
+                    multiple={true}
+                  />
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            {currentStep < totalSteps ? (
+              <Button 
+                onClick={handleNextStep}
+                disabled={(currentStep === 3 && !generatedCRA) || loading}
+                className="bg-gradient-hero shadow-glow"
+              >
+                {loading ? 'Creating Course...' : 'Next'}
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            ) : (
+              <Button onClick={handleFinish} className="bg-gradient-hero shadow-glow">
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Finish & Go to Classes
+              </Button>
+            )}
+          </div>
         </div>
       </main>
     </div>

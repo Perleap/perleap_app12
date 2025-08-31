@@ -28,26 +28,28 @@ export const DashboardCard = ({
   };
 
   return (
-    <Card className={cn("bg-gradient-card shadow-soft hover:shadow-medium transition-shadow", className)}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
-          {title}
-        </CardTitle>
-        {Icon && (
-          <Icon className="h-4 w-4 text-muted-foreground" />
-        )}
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold text-primary">{value}</div>
-        <div className="flex items-center justify-between">
-          {subtitle && (
-            <p className="text-xs text-muted-foreground">{subtitle}</p>
+    <Card className={cn("shadow-soft hover:shadow-medium transition-shadow", className)}>
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          {Icon && (
+            <div className="p-3 rounded-full bg-background">
+              <Icon className="h-6 w-6 text-primary" />
+            </div>
           )}
-          {trendValue && (
-            <p className={cn("text-xs font-medium", trendColors[trend])}>
-              {trendValue}
-            </p>
-          )}
+        </div>
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+          <div className="text-3xl font-bold text-foreground">{value}</div>
+          <div className="flex items-center justify-between">
+            {subtitle && (
+              <p className="text-xs text-muted-foreground">{subtitle}</p>
+            )}
+            {trendValue && (
+              <p className={cn("text-xs font-medium", trendColors[trend])}>
+                {trendValue}
+              </p>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>

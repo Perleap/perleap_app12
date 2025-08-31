@@ -1,1 +1,82 @@
 project_id = "bubnjokfdwhblqjfnbki"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+port = 54324
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["https://localhost:3000"]
+jwt_expiry = 3600
+
+[auth.email]
+enabled = true
+double_confirm_changes = true
+enable_confirmations = false
+
+[db]
+enabled = true
+port = 54322
+schema = "public"
+pooler_enabled = false
+pooler_port = 54329
+
+[realtime]
+enabled = true
+port = 54323
+
+[storage]
+enabled = true
+port = 54324
+file_size_limit = "50MiB"
+s3_host = "localhost"
+s3_port = 54324
+s3_protocol = "http"
+s3_access_key = "625729a08b95bf1b7ff351a663f3a23c"
+s3_secret_key = "850181e4652dd023b7a98c58ae0d2d34bd487ee0cc3254aedad7900fcb33e183"
+s3_region = "local"
+
+[analytics]
+enabled = false
+port = 54327
+vector_port = 54328
+gcp_project_id = ""
+gcp_project_number = ""
+gcp_jwt_path = "supabase/gcp.json"
+
+[inbucket]
+enabled = true
+port = 54325
+smtp_port = 54326
+
+[functions]
+enabled = true
+verify_jwt = true
+
+[functions.courses]
+verify_jwt = true
+
+[functions.activities]
+verify_jwt = true
+
+[functions.runs]
+verify_jwt = true
+
+[functions.enrollments]
+verify_jwt = true
+
+[functions.dashboard]
+verify_jwt = true
+
+[functions.activity-chat]
+verify_jwt = true
+
+[edge_runtime]
+enabled = true
+port = 54329
+inspector_port = 54330

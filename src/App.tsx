@@ -1,73 +1,70 @@
-import React from "react";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./hooks/useAuth";
-import { ProtectedRoute } from "./components/ProtectedRoute";
-import { ThemeProvider } from "./components/ThemeProvider";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ThemeProvider } from "@/components/theme-provider";
 import Index from "./pages/Index";
-import { Auth } from "./pages/Auth";
-import { TeacherDashboard } from "./pages/TeacherDashboard";
+import Auth from "./pages/Auth";
 import { StudentDashboard } from "./pages/StudentDashboard";
-import { CourseCreation } from "./pages/CourseCreation";
+import { StudentCourses } from "./pages/StudentCourses";
+import { StudentCourseDetails } from "./pages/StudentCourseDetails";
+import { StudentSettings } from "./pages/StudentSettings";
 import { StudentChat } from "./pages/StudentChat";
+import { StudentProgress } from "./pages/StudentProgress";
+import { StudentProfile } from "./pages/StudentProfile";
+import { TeacherDashboard } from "./pages/TeacherDashboard";
+import { TeacherClasses } from "./pages/TeacherClasses";
+import { TeacherStudents } from "./pages/TeacherStudents";
+import { TeacherSettings } from "./pages/TeacherSettings";
+import { TeacherDatabase } from "./pages/TeacherDatabase";
+import { TeacherCalendar } from "./pages/TeacherCalendar";
+import { TeacherAnalytics } from "./pages/TeacherAnalytics";
+import { TeacherCourseDetails } from "./pages/TeacherCourseDetails";
+import { CourseCreation } from "./pages/CourseCreation";
+import { StudentAnalyticsDetail } from "./pages/StudentAnalyticsDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="system" storageKey="perleap-ui-theme">
+    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
       <TooltipProvider>
-        <AuthProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+        <Toaster />
+        <BrowserRouter>
+          <AuthProvider>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
-              <Route path="/teacher" element={
-                <ProtectedRoute requiredRole="teacher">
-                  <TeacherDashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/teacher/courses" element={
-                <ProtectedRoute requiredRole="teacher">
-                  <TeacherDashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/teacher/courses/new" element={
-                <ProtectedRoute requiredRole="teacher">
-                  <CourseCreation />
-                </ProtectedRoute>
-              } />
-              <Route path="/student" element={
-                <ProtectedRoute requiredRole="student">
-                  <StudentDashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/student/dashboard" element={
-                <ProtectedRoute requiredRole="student">
-                  <StudentDashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/student/courses" element={
-                <ProtectedRoute requiredRole="student">
-                  <StudentDashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/student/activity/:id" element={
-                <ProtectedRoute requiredRole="student">
-                  <StudentChat />
-                </ProtectedRoute>
-              } />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              
+              {/* Student Routes */}
+              <Route path="/student/dashboard" element={<StudentDashboard />} />
+              <Route path="/student/courses" element={<StudentCourses />} />
+              <Route path="/student/courses/:id" element={<StudentCourseDetails />} />
+              <Route path="/student/progress" element={<StudentProgress />} />
+              <Route path="/student/profile" element={<StudentProfile />} />
+              <Route path="/student/settings" element={<StudentSettings />} />
+              <Route path="/student-chat" element={<StudentChat />} />
+              
+              {/* Teacher Routes */}
+              <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
+              <Route path="/teacher/classes" element={<TeacherClasses />} />
+              <Route path="/teacher/classes/:id" element={<TeacherCourseDetails />} />
+              <Route path="/teacher/students" element={<TeacherStudents />} />
+              <Route path="/teacher/settings" element={<TeacherSettings />} />
+              <Route path="/teacher/database" element={<TeacherDatabase />} />
+              <Route path="/teacher/calendar" element={<TeacherCalendar />} />
+              <Route path="/teacher/analytics" element={<TeacherAnalytics />} />
+              <Route path="/teacher/student-analytics/:courseId/:studentId" element={<StudentAnalyticsDetail />} />
+              <Route path="/teacher/create-course" element={<CourseCreation />} />
+              
+              {/* Fallback */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
-        </AuthProvider>
+          </AuthProvider>
+        </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>

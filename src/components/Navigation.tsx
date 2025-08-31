@@ -1,207 +1,95 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import perleapLogo from "@/assets/perleap-logo-new.png";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { 
-  GraduationCap, 
-  Menu, 
-  X, 
-  User, 
-  LogOut,
-  BookOpen,
-  Users,
-  LogIn,
-  UserPlus
-} from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+import { useLocation, Link } from "react-router-dom";
+import { BookOpen, Users, BarChart3, Settings, User, Database, Calendar, LogOut } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { useAuth } from "@/contexts/AuthContext";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 interface NavigationProps {
-  userRole?: 'teacher' | 'student';
+  userRole?: "teacher" | "student";
 }
 
-export const Navigation = ({ userRole }: NavigationProps = {}) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, profile, signOut } = useAuth();
-  const navigate = useNavigate();
+export const Navigation = ({ userRole }: NavigationProps) => {
+  const location = useLocation();
+  const { userRole: detectedRole, signOut } = useAuth();
+  
+  // Use detected role from auth context, fallback to prop
+  const currentRole = userRole || detectedRole;
+  
+  const teacherNavItems = [
+    { icon: Users, label: "Classes", path: "/teacher/classes" },
+    { icon: Database, label: "Database", path: "/teacher/database" },
+    { icon: Calendar, label: "Calendar", path: "/teacher/calendar" },
+    { icon: BarChart3, label: "Analytics", path: "/teacher/analytics" },
+    { icon: Settings, label: "Settings", path: "/teacher/settings" },
+  ];
 
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/');
-  };
+  const studentNavItems = [
+    { icon: BookOpen, label: "My Perleaps", path: "/student/courses" },
+    { icon: BarChart3, label: "Progress", path: "/student/progress" },
+    { icon: User, label: "Profile", path: "/student/profile" },
+  ];
 
-  const currentRole = profile?.role || userRole;
+  const navItems = currentRole === "teacher" ? teacherNavItems : studentNavItems;
 
   return (
-    <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center space-x-2 text-primary hover:text-primary/80 transition-colors">
-            <GraduationCap className="w-8 h-8" />
-            <span className="text-2xl font-bold">Perleap</span>
-          </Link>
-          
-          {currentRole && (
-            <nav className="hidden md:flex items-center space-x-6">
-              {currentRole === 'teacher' ? (
-                <>
-                  <Link to="/teacher" className="text-foreground hover:text-primary transition-colors">Dashboard</Link>
-                  <Link to="/teacher/courses" className="text-foreground hover:text-primary transition-colors">Courses</Link>
-                  <Link to="/teacher/courses/new" className="text-foreground hover:text-primary transition-colors">Create Course</Link>
-                </>
-              ) : (
-                <>
-                  <Link to="/student" className="text-foreground hover:text-primary transition-colors">Dashboard</Link>
-                  <Link to="/student/courses" className="text-foreground hover:text-primary transition-colors">My Courses</Link>
-                </>
-              )}
-            </nav>
-          )}
-
-          <div className="flex items-center space-x-3">
-            <ThemeToggle />
-            {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center space-x-2">
-                    <User className="w-4 h-4" />
-                    <span>{profile?.full_name || user.email}</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>
-                    <User className="w-4 h-4 mr-2" />
-                    Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut}>
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <div className="flex items-center space-x-2">
-                <Button 
-                  variant="ghost" 
-                  onClick={() => navigate('/auth')}
-                  className="flex items-center space-x-1"
-                >
-                  <LogIn className="w-4 h-4" />
-                  <span className="hidden sm:inline">Login</span>
-                </Button>
-                <Button 
-                  onClick={() => navigate('/auth')}
-                  className="bg-gradient-hero shadow-glow flex items-center space-x-1"
-                >
-                  <UserPlus className="w-4 h-4" />
-                  <span className="hidden sm:inline">Register</span>
-                </Button>
-              </div>
-            )}
-            
+    <nav className="flex items-center justify-between px-6 py-4 bg-gradient-card border-b border-border shadow-soft">
+      <div className="flex items-center space-x-8">
+        <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+          <img 
+            src={perleapLogo} 
+            alt="Perleap Logo" 
+            className="w-10 h-10 rounded-lg object-contain"
+          />
+          <span className="text-xl font-bold text-primary">Perleap</span>
+        </Link>
+        
+        <div className="flex items-center space-x-1">
+          {navItems.map(({ icon: Icon, label, path }) => (
             <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              key={path}
+              variant={location.pathname === path ? "default" : "ghost"}
+              size="sm"
+              className={cn(
+                "flex items-center space-x-2",
+                location.pathname === path && "bg-primary text-primary-foreground shadow-glow"
+              )}
+              asChild
             >
-              {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              <Link to={path}>
+                <Icon className="w-4 h-4" />
+                <span>{label}</span>
+              </Link>
             </Button>
-          </div>
+          ))}
         </div>
       </div>
 
-      {isMenuOpen && (
-        <div className="md:hidden border-t border-border bg-background/95 backdrop-blur">
-          <div className="px-6 py-4 space-y-4">
-            {currentRole ? (
-              <>
-                {currentRole === 'teacher' ? (
-                  <>
-                    <Link 
-                      to="/teacher" 
-                      className="block text-foreground hover:text-primary transition-colors"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Dashboard
-                    </Link>
-                    <Link 
-                      to="/teacher/courses" 
-                      className="block text-foreground hover:text-primary transition-colors"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Courses
-                    </Link>
-                    <Link 
-                      to="/teacher/courses/new" 
-                      className="block text-foreground hover:text-primary transition-colors"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Create Course
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <Link 
-                      to="/student" 
-                      className="block text-foreground hover:text-primary transition-colors"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Dashboard
-                    </Link>
-                    <Link 
-                      to="/student/courses" 
-                      className="block text-foreground hover:text-primary transition-colors"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      My Courses
-                    </Link>
-                  </>
-                )}
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start"
-                  onClick={handleSignOut}
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => {
-                    navigate('/auth');
-                    setIsMenuOpen(false);
-                  }}
-                >
-                  <LogIn className="w-4 h-4 mr-2" />
-                  Login
-                </Button>
-                <Button 
-                  className="w-full bg-gradient-hero shadow-glow"
-                  onClick={() => {
-                    navigate('/auth');
-                    setIsMenuOpen(false);
-                  }}
-                >
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  Register
-                </Button>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+      <div className="flex items-center space-x-3">
+        <ThemeToggle />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm">
+              <User className="w-4 h-4 mr-2" />
+              Profile
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+              <Link to={`/${currentRole}/settings`} className="w-full">
+                <Settings className="w-4 h-4 mr-2" />
+                Settings
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={signOut}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </nav>
   );
 };

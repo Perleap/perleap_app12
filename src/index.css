@@ -17,13 +17,14 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    /* Perleap Brand Colors - Deep Blue to Purple Gradient */
-    --primary: 220 100% 25%;
+    /* Perleap Brand Colors - Fluid Blue to Purple Gradient */
+    --primary: 240 100% 65%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 250 100% 75%;
+    --primary-glow: 250 85% 70%;
+    --primary-deep: 235 90% 55%;
     
-    /* Secondary - Warm Purple */
-    --secondary: 260 60% 20%;
+    /* Secondary - Warm Purple with better contrast */
+    --secondary: 250 60% 50%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 220 20% 96%;
@@ -52,16 +53,19 @@ All colors MUST be HSL.
     --education-secondary: 260 60% 20%;
     --education-accent: 180 100% 80%;
     
-    /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(220, 100%, 25%) 0%, hsl(260, 60%, 20%) 100%);
+    /* Fluid Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(240, 100%, 65%) 0%, hsl(250, 85%, 70%) 50%, hsl(235, 90%, 55%) 100%);
     --gradient-card: linear-gradient(145deg, hsl(0, 0%, 100%) 0%, hsl(220, 20%, 98%) 100%);
-    --gradient-assessment: linear-gradient(135deg, hsl(142, 76%, 36%) 0%, hsl(180, 100%, 35%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(240, 100%, 65%) 0%, hsl(235, 90%, 55%) 100%);
+    --gradient-assessment: linear-gradient(135deg, hsl(142, 76%, 46%) 0%, hsl(180, 70%, 45%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(220, 15%, 98%) 0%, hsl(220, 20%, 96%) 100%);
     
-    /* Shadows */
+    /* Enhanced Shadows with brand colors */
     --shadow-soft: 0 2px 8px hsl(220, 15%, 15%, 0.08);
     --shadow-medium: 0 4px 16px hsl(220, 15%, 15%, 0.12);
-    --shadow-strong: 0 8px 32px hsl(220, 15%, 15%, 0.16);
-    --shadow-glow: 0 0 32px hsl(220, 100%, 50%, 0.15);
+    --shadow-strong: 0 8px 32px hsl(240, 100%, 65%, 0.2);
+    --shadow-elegant: 0 10px 30px -10px hsl(240, 100%, 65%, 0.25);
+    --shadow-glow: 0 0 40px hsl(250, 85%, 70%, 0.3);
 
     --radius: 0.75rem;
 
@@ -119,10 +123,12 @@ All colors MUST be HSL.
     --input: 220 20% 15%;
     --ring: 220 100% 60%;
 
-    /* Dark theme gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(220, 100%, 40%) 0%, hsl(260, 60%, 30%) 100%);
+    /* Dark theme fluid gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(245, 85%, 70%) 0%, hsl(250, 75%, 75%) 50%, hsl(240, 80%, 60%) 100%);
     --gradient-card: linear-gradient(145deg, hsl(220, 20%, 10%) 0%, hsl(220, 20%, 12%) 100%);
-    --gradient-assessment: linear-gradient(135deg, hsl(142, 76%, 36%) 0%, hsl(180, 100%, 25%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(245, 85%, 70%) 0%, hsl(240, 80%, 60%) 100%);
+    --gradient-assessment: linear-gradient(135deg, hsl(142, 76%, 46%) 0%, hsl(180, 70%, 35%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(220, 25%, 8%) 0%, hsl(220, 25%, 12%) 100%);
 
     --sidebar-background: 220 20% 6%;
     --sidebar-foreground: 220 15% 85%;
@@ -142,5 +148,27 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  .bg-gradient-hero {
+    background: var(--gradient-hero);
+  }
+  .bg-gradient-card {
+    background: var(--gradient-card);
+  }
+  .bg-gradient-primary {
+    background: var(--gradient-primary);
+  }
+  .bg-gradient-subtle {
+    background: var(--gradient-subtle);
+  }
+  .shadow-elegant {
+    box-shadow: var(--shadow-elegant);
+  }
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
