@@ -1,7 +1,7 @@
 import perleapLogo from "@/assets/perleap-logo-new.png";
 import { Button } from "@/components/ui/button";
 import { useLocation, Link } from "react-router-dom";
-import { BookOpen, Users, BarChart3, Settings, User, Database, Calendar, LogOut } from "lucide-react";
+import { BookOpen, Users, BarChart3, Settings, User, Database, Calendar, LogOut, LogIn, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,7 +13,7 @@ interface NavigationProps {
 
 export const Navigation = ({ userRole }: NavigationProps) => {
   const location = useLocation();
-  const { userRole: detectedRole, signOut } = useAuth();
+  const { user, userRole: detectedRole, signOut } = useAuth();
   
   // Use detected role from auth context, fallback to prop
   const currentRole = userRole || detectedRole;
@@ -69,26 +69,43 @@ export const Navigation = ({ userRole }: NavigationProps) => {
 
       <div className="flex items-center space-x-3">
         <ThemeToggle />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
-              <User className="w-4 h-4 mr-2" />
-              Profile
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
-              <Link to={`/${currentRole}/settings`} className="w-full">
-                <Settings className="w-4 h-4 mr-2" />
-                Settings
+        {user ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <User className="w-4 h-4 mr-2" />
+                Profile
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link to={`/${currentRole}/settings`} className="w-full">
+                  <Settings className="w-4 h-4 mr-2" />
+                  Settings
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={signOut}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <>
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/auth">
+                <LogIn className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">Login</span>
               </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={signOut}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            </Button>
+            <Button variant="default" size="sm" asChild>
+              <Link to="/auth">
+                <UserPlus className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">Register</span>
+              </Link>
+            </Button>
+          </>
+        )}
       </div>
     </nav>
   );
