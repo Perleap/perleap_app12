@@ -91,17 +91,17 @@ export const Navigation = ({ userRole }: NavigationProps = {}) => {
                 <Button 
                   variant="ghost" 
                   onClick={() => navigate('/auth')}
-                  className="hidden sm:flex items-center space-x-1"
+                  className="flex items-center space-x-1"
                 >
                   <LogIn className="w-4 h-4" />
-                  <span>Login</span>
+                  <span className="hidden sm:inline">Login</span>
                 </Button>
                 <Button 
                   onClick={() => navigate('/auth')}
-                  className="bg-gradient-hero shadow-glow hidden sm:flex items-center space-x-1"
+                  className="bg-gradient-hero shadow-glow flex items-center space-x-1"
                 >
                   <UserPlus className="w-4 h-4" />
-                  <span>Register</span>
+                  <span className="hidden sm:inline">Register</span>
                 </Button>
               </div>
             )}
