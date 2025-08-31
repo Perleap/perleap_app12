@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -15,7 +16,9 @@ import {
   User, 
   LogOut,
   BookOpen,
-  Users
+  Users,
+  LogIn,
+  UserPlus
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -61,7 +64,8 @@ export const Navigation = ({ userRole }: NavigationProps = {}) => {
             </nav>
           )}
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
+            <ThemeToggle />
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -83,21 +87,23 @@ export const Navigation = ({ userRole }: NavigationProps = {}) => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <>
+              <div className="flex items-center space-x-2">
                 <Button 
                   variant="ghost" 
                   onClick={() => navigate('/auth')}
-                  className="hidden sm:flex"
+                  className="hidden sm:flex items-center space-x-1"
                 >
-                  Sign In
+                  <LogIn className="w-4 h-4" />
+                  <span>Login</span>
                 </Button>
                 <Button 
                   onClick={() => navigate('/auth')}
-                  className="bg-gradient-hero shadow-glow hidden sm:flex"
+                  className="bg-gradient-hero shadow-glow hidden sm:flex items-center space-x-1"
                 >
-                  Get Started
+                  <UserPlus className="w-4 h-4" />
+                  <span>Register</span>
                 </Button>
-              </>
+              </div>
             )}
             
             <Button
@@ -178,7 +184,8 @@ export const Navigation = ({ userRole }: NavigationProps = {}) => {
                     setIsMenuOpen(false);
                   }}
                 >
-                  Sign In
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Login
                 </Button>
                 <Button 
                   className="w-full bg-gradient-hero shadow-glow"
@@ -187,7 +194,8 @@ export const Navigation = ({ userRole }: NavigationProps = {}) => {
                     setIsMenuOpen(false);
                   }}
                 >
-                  Get Started
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Register
                 </Button>
               </>
             )}
