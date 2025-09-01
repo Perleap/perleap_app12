@@ -309,6 +309,7 @@ export type Database = {
           grade_level: string
           id: string
           status: string | null
+          subcategory: string | null
           subject: string
           teacher_id: string
           teacher_name: string | null
@@ -322,6 +323,7 @@ export type Database = {
           grade_level: string
           id?: string
           status?: string | null
+          subcategory?: string | null
           subject: string
           teacher_id: string
           teacher_name?: string | null
@@ -335,6 +337,7 @@ export type Database = {
           grade_level?: string
           id?: string
           status?: string | null
+          subcategory?: string | null
           subject?: string
           teacher_id?: string
           teacher_name?: string | null

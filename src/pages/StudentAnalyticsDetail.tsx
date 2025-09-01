@@ -164,8 +164,12 @@ export const StudentAnalyticsDetail = () => {
           <div key={area} className="p-3 rounded-lg bg-muted/50">
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <span className="font-medium text-sm">{area}</span>
-                <p className="text-xs text-muted-foreground">{data.ks_component}</p>
+                <span className="font-medium text-sm">
+                  {area === 'Primary Subject' ? (course?.title || area) : area}
+                </span>
+                <p className="text-xs text-muted-foreground">
+                  {data.ks_component === 'Core Knowledge' ? (course?.subcategory || data.ks_component) : data.ks_component}
+                </p>
               </div>
               <div className="text-center">
                 <span className="text-lg font-bold text-primary">{data.current_level}%</span>

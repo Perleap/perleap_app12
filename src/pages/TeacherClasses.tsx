@@ -19,6 +19,7 @@ interface Course {
   id: string;
   title: string;
   subject: string;
+  subcategory?: string;
   grade_level: string;
   description: string;
   student_count: number;
@@ -49,7 +50,8 @@ export const TeacherClasses = () => {
     title: "",
     subject: "",
     grade_level: "",
-    description: ""
+    description: "",
+    subcategory: ""
   });
   const [courseFiles, setCourseFiles] = useState<any[]>([]);
   const [createdCourseId, setCreatedCourseId] = useState<string | null>(null);
@@ -58,7 +60,8 @@ export const TeacherClasses = () => {
     title: "",
     subject: "",
     grade_level: "",
-    description: ""
+    description: "",
+    subcategory: ""
   });
 
   useEffect(() => {
@@ -78,6 +81,7 @@ export const TeacherClasses = () => {
           id,
           title,
           subject,
+          subcategory,
           grade_level,
           description,
           created_at
@@ -194,7 +198,7 @@ export const TeacherClasses = () => {
       });
 
       setIsCreateDialogOpen(false);
-      setNewCourse({ title: "", subject: "", grade_level: "", description: "" });
+      setNewCourse({ title: "", subject: "", grade_level: "", description: "", subcategory: "" });
       setCourseFiles([]);
       setCreatedCourseId(null);
       fetchCourses();
@@ -303,7 +307,8 @@ export const TeacherClasses = () => {
       title: course.title,
       subject: course.subject,
       grade_level: course.grade_level,
-      description: course.description
+      description: course.description,
+      subcategory: course.subcategory || ""
     });
     setIsEditDialogOpen(true);
   };
@@ -382,6 +387,15 @@ export const TeacherClasses = () => {
                       <SelectItem value="12">Grade 12</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+                <div>
+                  <Label htmlFor="subcategory">Subcategory (Optional)</Label>
+                  <Input
+                    id="subcategory"
+                    value={newCourse.subcategory}
+                    onChange={(e) => setNewCourse({ ...newCourse, subcategory: e.target.value })}
+                    placeholder="e.g., Geometry, Algebra"
+                  />
                 </div>
                 <div>
                   <Label htmlFor="description">Description</Label>
@@ -465,7 +479,9 @@ export const TeacherClasses = () => {
                   <div className="flex items-start justify-between">
                     <div>
                       <CardTitle className="text-lg">{course.title}</CardTitle>
-                      <p className="text-sm text-muted-foreground">{course.subject}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {course.subject} {course.subcategory && `• ${course.subcategory}`}
+                      </p>
                     </div>
                     <Badge variant="secondary">Grade {course.grade_level}</Badge>
                   </div>
@@ -555,6 +571,15 @@ export const TeacherClasses = () => {
                     <SelectItem value="12">Grade 12</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div>
+                <Label htmlFor="edit-subcategory">Subcategory (Optional)</Label>
+                <Input
+                  id="edit-subcategory"
+                  value={editCourse.subcategory}
+                  onChange={(e) => setEditCourse({ ...editCourse, subcategory: e.target.value })}
+                  placeholder="e.g., Geometry, Algebra"
+                />
               </div>
               <div>
                 <Label htmlFor="edit-description">Description</Label>
