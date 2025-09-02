@@ -120,8 +120,8 @@ export const TeacherAnalytics = () => {
         .select('*')
         .eq('course_id', selectedCourse.id);
 
-      // Filter by subcategory if selected
-      if (selectedSubcategory) {
+      // Filter by subcategory if selected (and not "all")
+      if (selectedSubcategory && selectedSubcategory !== 'all') {
         // First get activities in the subcategory
         const { data: activitiesData } = await supabase
           .from('activities')
@@ -277,8 +277,8 @@ export const TeacherAnalytics = () => {
             <h2 className="text-2xl font-bold text-primary">Analytics Dashboard</h2>
             <p className="text-muted-foreground">
               {selectedCourse 
-                ? selectedSubcategory
-                  ? `${selectedCourse.title} - ${selectedSubcategory} Category Analysis`
+               ? (selectedSubcategory && selectedSubcategory !== 'all')
+                   ? `${selectedCourse.title} - ${selectedSubcategory} Category Analysis`
                   : `${selectedCourse.title} - Full Course Analysis`
                 : 'Select a course to view detailed SOFT skills analytics'
               }
@@ -342,7 +342,7 @@ export const TeacherAnalytics = () => {
               {/* SOFT Skills Chart */}
               <SOFTSkillsChart 
                 data={courseSOFTData} 
-                title={selectedSubcategory 
+                title={selectedSubcategory && selectedSubcategory !== 'all'
                   ? `Average SOFT Skills - ${selectedSubcategory} Category`
                   : `Average SOFT Skills - Full Course`
                 }
@@ -361,7 +361,7 @@ export const TeacherAnalytics = () => {
                     <div className="text-center py-8">
                       <p className="text-muted-foreground">
                         No student assessment data available for this course
-                        {selectedSubcategory ? ` and subcategory "${selectedSubcategory}"` : ''}.
+                        {(selectedSubcategory && selectedSubcategory !== 'all') ? ` and subcategory "${selectedSubcategory}"` : ''}.
                       </p>
                     </div>
                   ) : (

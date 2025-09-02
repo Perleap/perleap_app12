@@ -134,7 +134,7 @@ export const CourseSubcategoryFilter = ({
               <SelectValue placeholder="All categories (view course average)" />
             </SelectTrigger>
             <SelectContent className="bg-popover border-border z-50 max-h-[200px] overflow-y-auto">
-              <SelectItem value="">All categories</SelectItem>
+              <SelectItem value="all">All categories</SelectItem>
               {subcategories.map((subcategory) => (
                 <SelectItem key={subcategory} value={subcategory}>
                   {subcategory}
