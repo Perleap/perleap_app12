@@ -51,17 +51,19 @@ export const TeacherClasses = () => {
     subject: "",
     grade_level: "",
     description: "",
-    subcategory: ""
+    subcategories: [] as string[]
   });
+  const [currentSubcategory, setCurrentSubcategory] = useState("");
   const [courseFiles, setCourseFiles] = useState<any[]>([]);
   const [createdCourseId, setCreatedCourseId] = useState<string | null>(null);
 
   const [editCourse, setEditCourse] = useState({
+    id: "",
     title: "",
     subject: "",
     grade_level: "",
     description: "",
-    subcategory: ""
+    subcategories: [] as string[]
   });
 
   useEffect(() => {
@@ -160,6 +162,7 @@ export const TeacherClasses = () => {
         .from('courses')
         .insert([{
           ...newCourse,
+          subcategory: newCourse.subcategories.join(', '),
           teacher_id: user.id
         }])
         .select()
@@ -198,7 +201,8 @@ export const TeacherClasses = () => {
       });
 
       setIsCreateDialogOpen(false);
-      setNewCourse({ title: "", subject: "", grade_level: "", description: "", subcategory: "" });
+      setNewCourse({ title: "", subject: "", grade_level: "", description: "", subcategories: [] });
+      setCurrentSubcategory("");
       setCourseFiles([]);
       setCreatedCourseId(null);
       fetchCourses();
@@ -249,7 +253,10 @@ export const TeacherClasses = () => {
 
       const { error } = await supabase
         .from('courses')
-        .update(editCourse)
+        .update({
+          ...editCourse,
+          subcategory: editCourse.subcategories.join(', ')
+        })
         .eq('id', selectedCourse.id);
 
       if (error) throw error;
@@ -304,13 +311,31 @@ export const TeacherClasses = () => {
   const openEditDialog = (course: Course) => {
     setSelectedCourse(course);
     setEditCourse({
+      id: course.id,
       title: course.title,
       subject: course.subject,
       grade_level: course.grade_level,
       description: course.description,
-      subcategory: course.subcategory || ""
+      subcategories: course.subcategory ? course.subcategory.split(', ') : []
     });
     setIsEditDialogOpen(true);
+  };
+
+  const addSubcategory = () => {
+    if (currentSubcategory.trim() && !newCourse.subcategories.includes(currentSubcategory.trim())) {
+      setNewCourse(prev => ({
+        ...prev,
+        subcategories: [...prev.subcategories, currentSubcategory.trim()]
+      }));
+      setCurrentSubcategory('');
+    }
+  };
+
+  const removeSubcategory = (indexToRemove: number) => {
+    setNewCourse(prev => ({
+      ...prev,
+      subcategories: prev.subcategories.filter((_, index) => index !== indexToRemove)
+    }));
   };
 
   const filteredCourses = courses.filter(course =>
@@ -388,14 +413,54 @@ export const TeacherClasses = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
-                  <Label htmlFor="subcategory">Subcategory (Optional)</Label>
-                  <Input
-                    id="subcategory"
-                    value={newCourse.subcategory}
-                    onChange={(e) => setNewCourse({ ...newCourse, subcategory: e.target.value })}
-                    placeholder="e.g., Geometry, Algebra"
-                  />
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="subcategories">Course Subcategories</Label>
+                    <p className="text-sm text-muted-foreground">Add subcategories like "Algebra", "Geometry", etc.</p>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Input
+                      value={currentSubcategory}
+                      onChange={(e) => setCurrentSubcategory(e.target.value)}
+                      placeholder="Enter subcategory name"
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          addSubcategory();
+                        }
+                      }}
+                    />
+                    <Button 
+                      type="button"
+                      onClick={addSubcategory}
+                      disabled={!currentSubcategory.trim()}
+                      variant="outline"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  
+                  {newCourse.subcategories.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {newCourse.subcategories.map((subcategory, index) => (
+                        <Badge 
+                          key={index} 
+                          variant="secondary" 
+                          className="px-3 py-1 flex items-center gap-2"
+                        >
+                          {subcategory}
+                          <button
+                            type="button"
+                            onClick={() => removeSubcategory(index)}
+                            className="hover:bg-destructive/20 rounded-full p-0.5 transition-colors"
+                          >
+                            <Plus className="w-3 h-3 rotate-45" />
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="description">Description</Label>
@@ -573,11 +638,11 @@ export const TeacherClasses = () => {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="edit-subcategory">Subcategory (Optional)</Label>
+                <Label htmlFor="edit-subcategory">Subcategories (Optional)</Label>
                 <Input
                   id="edit-subcategory"
-                  value={editCourse.subcategory}
-                  onChange={(e) => setEditCourse({ ...editCourse, subcategory: e.target.value })}
+                  value={editCourse.subcategories.join(', ')}
+                  onChange={(e) => setEditCourse({ ...editCourse, subcategories: e.target.value.split(', ').filter(Boolean) })}
                   placeholder="e.g., Geometry, Algebra"
                 />
               </div>
