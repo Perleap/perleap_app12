@@ -277,7 +277,9 @@ export const TeacherAnalytics = () => {
             <h2 className="text-2xl font-bold text-primary">Analytics Dashboard</h2>
             <p className="text-muted-foreground">
               {selectedCourse 
-                ? `${selectedCourse.title} - SOFT Skills Analysis` 
+                ? selectedSubcategory
+                  ? `${selectedCourse.title} - ${selectedSubcategory} Category Analysis`
+                  : `${selectedCourse.title} - Full Course Analysis`
                 : 'Select a course to view detailed SOFT skills analytics'
               }
             </p>
@@ -340,7 +342,10 @@ export const TeacherAnalytics = () => {
               {/* SOFT Skills Chart */}
               <SOFTSkillsChart 
                 data={courseSOFTData} 
-                title={`Course Average SOFT Skills${selectedSubcategory ? ` - ${selectedSubcategory}` : ''}`}
+                title={selectedSubcategory 
+                  ? `Average SOFT Skills - ${selectedSubcategory} Category`
+                  : `Average SOFT Skills - Full Course`
+                }
               />
 
               {/* Students List */}

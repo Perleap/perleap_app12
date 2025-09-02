@@ -109,18 +109,18 @@ export const CourseSubcategoryFilter = ({
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="space-y-6">
       <div>
-        <Label htmlFor="course">Course</Label>
+        <Label htmlFor="course" className="text-lg font-medium text-primary mb-2 block">Course</Label>
         <Select
           value={selectedCourse?.id || ''}
           onValueChange={handleCourseChange}
           disabled={loading}
         >
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Select a course" />
           </SelectTrigger>
-          <SelectContent className="bg-popover border-border z-50">
+          <SelectContent className="bg-popover border-border z-50 max-h-[200px] overflow-y-auto">
             {courses.map((course) => (
               <SelectItem key={course.id} value={course.id}>
                 {course.title} ({course.subject})
@@ -132,16 +132,16 @@ export const CourseSubcategoryFilter = ({
 
       {showSubcategory && selectedCourse && subcategories.length > 0 && (
         <div>
-          <Label htmlFor="subcategory">Subcategory</Label>
+          <Label htmlFor="category" className="text-lg font-medium text-primary mb-2 block">Category</Label>
           <Select
             value={selectedSubcategory}
             onValueChange={onSubcategoryChange}
           >
-            <SelectTrigger>
-              <SelectValue placeholder="Select subcategory (optional)" />
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="All categories (view course average)" />
             </SelectTrigger>
-            <SelectContent className="bg-popover border-border z-50">
-              <SelectItem value="">All subcategories</SelectItem>
+            <SelectContent className="bg-popover border-border z-50 max-h-[200px] overflow-y-auto">
+              <SelectItem value="">All categories</SelectItem>
               {subcategories.map((subcategory) => (
                 <SelectItem key={subcategory} value={subcategory}>
                   {subcategory}
