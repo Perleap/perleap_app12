@@ -161,7 +161,10 @@ export const TeacherClasses = () => {
       const { data: courseData, error } = await supabase
         .from('courses')
         .insert([{
-          ...newCourse,
+          title: newCourse.title,
+          subject: newCourse.subject,
+          grade_level: newCourse.grade_level,
+          description: newCourse.description,
           subcategory: newCourse.subcategories.join(', '),
           teacher_id: user.id
         }])
@@ -254,7 +257,10 @@ export const TeacherClasses = () => {
       const { error } = await supabase
         .from('courses')
         .update({
-          ...editCourse,
+          title: editCourse.title,
+          subject: editCourse.subject,
+          grade_level: editCourse.grade_level,
+          description: editCourse.description,
           subcategory: editCourse.subcategories.join(', ')
         })
         .eq('id', selectedCourse.id);
