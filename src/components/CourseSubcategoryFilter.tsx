@@ -39,7 +39,7 @@ export const CourseSubcategoryFilter = ({
 
   useEffect(() => {
     if (selectedCourse) {
-      fetchSubcategories(selectedCourse.subject);
+      fetchSubcategories(selectedCourse.id);
     } else {
       setSubcategories([]);
       onSubcategoryChange('');
@@ -76,25 +76,18 @@ export const CourseSubcategoryFilter = ({
     }
   };
 
-  const fetchSubcategories = async (subject: string) => {
+  const fetchSubcategories = async (courseId: string) => {
     try {
-      const query = supabase
-        .from('courses')
-        .select('subcategory')
-        .eq('subject', subject)
-        .eq('status', 'active')
-        .not('subcategory', 'is', null);
-      
-      if (teacherId) {
-        query.eq('teacher_id', teacherId);
-      }
-
-      const { data, error } = await query;
+      const { data, error } = await supabase
+        .from('activities')
+        .select('sub_component_name')
+        .eq('course_id', courseId)
+        .not('sub_component_name', 'is', null);
 
       if (error) throw error;
       
       const uniqueSubcategories = [...new Set(
-        data?.map(item => item.subcategory).filter(Boolean) || []
+        data?.map(item => item.sub_component_name).filter(Boolean) || []
       )];
       
       setSubcategories(uniqueSubcategories);
