@@ -129,6 +129,9 @@ export const StatsChart = () => {
                 fill="hsl(var(--primary))"
                 radius={[4, 4, 0, 0]}
                 className="drop-shadow-sm"
+                style={{
+                  filter: 'drop-shadow(0 1px 2px hsl(var(--primary) / 0.3))'
+                }}
               />
             </BarChart>
           </ResponsiveContainer>

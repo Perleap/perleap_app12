@@ -65,8 +65,11 @@ export const CourseCreation = () => {
     description: '',
     objectives: '',
     prerequisites: '',
-    resources: ''
+    resources: '',
+    subcategories: [] as string[]
   });
+  
+  const [currentSubcategory, setCurrentSubcategory] = useState('');
   
   const totalSteps = 5;
   const progress = (currentStep / totalSteps) * 100;
@@ -83,6 +86,23 @@ export const CourseCreation = () => {
 
   const handleInputChange = (field: string, value: string) => {
     setCourseData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const addSubcategory = () => {
+    if (currentSubcategory.trim() && !courseData.subcategories.includes(currentSubcategory.trim())) {
+      setCourseData(prev => ({
+        ...prev,
+        subcategories: [...prev.subcategories, currentSubcategory.trim()]
+      }));
+      setCurrentSubcategory('');
+    }
+  };
+
+  const removeSubcategory = (indexToRemove: number) => {
+    setCourseData(prev => ({
+      ...prev,
+      subcategories: prev.subcategories.filter((_, index) => index !== indexToRemove)
+    }));
   };
 
   const handleActivityInputChange = (field: string, value: string) => {
@@ -191,7 +211,8 @@ export const CourseCreation = () => {
           description: courseData.description,
           teacher_id: user.id,
           teacher_name: teacherName,
-          status: 'active'
+          status: 'active',
+          subcategory: courseData.subcategories.join(', ')
         }])
         .select()
         .single();
@@ -360,6 +381,57 @@ export const CourseCreation = () => {
                 onChange={(e) => handleInputChange('description', e.target.value)}
               />
             </div>
+            
+            {/* Subcategories Section */}
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="subcategories">Course Subcategories</Label>
+                <p className="text-sm text-muted-foreground">Add subcategories like "Algebra", "Geometry", etc.</p>
+              </div>
+              
+              <div className="flex gap-2">
+                <Input
+                  value={currentSubcategory}
+                  onChange={(e) => setCurrentSubcategory(e.target.value)}
+                  placeholder="Enter subcategory name"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addSubcategory();
+                    }
+                  }}
+                />
+                <Button 
+                  type="button"
+                  onClick={addSubcategory}
+                  disabled={!currentSubcategory.trim()}
+                  variant="outline"
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              
+              {courseData.subcategories.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {courseData.subcategories.map((subcategory, index) => (
+                    <Badge 
+                      key={index} 
+                      variant="secondary" 
+                      className="px-3 py-1 flex items-center gap-2"
+                    >
+                      {subcategory}
+                      <button
+                        type="button"
+                        onClick={() => removeSubcategory(index)}
+                        className="hover:bg-destructive/20 rounded-full p-0.5 transition-colors"
+                      >
+                        <Plus className="w-3 h-3 rotate-45" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         );
       
@@ -472,15 +544,15 @@ export const CourseCreation = () => {
                           />
                         </div>
                         
-                        <div className="space-y-2">
-                          <Label htmlFor="activity_sub_component">Sub Component Name</Label>
-                          <Input
-                            id="activity_sub_component"
-                            value={activityFormData.sub_component_name}
-                            onChange={(e) => handleActivityInputChange('sub_component_name', e.target.value)}
-                            placeholder="e.g., Linear Equations"
-                          />
-                        </div>
+                         <div className="space-y-2">
+                           <Label htmlFor="activity_sub_component">Sub Category</Label>
+                           <Input
+                             id="activity_sub_component"
+                             value={activityFormData.sub_component_name}
+                             onChange={(e) => handleActivityInputChange('sub_component_name', e.target.value)}
+                             placeholder="e.g., Linear Equations"
+                           />
+                         </div>
                         
                         <div className="space-y-2">
                           <Label htmlFor="activity_focus">Custom Focus</Label>
