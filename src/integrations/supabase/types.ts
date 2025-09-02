@@ -531,6 +531,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      secure_update_profile: {
+        Args: { p_full_name?: string; p_profile_picture_url?: string }
+        Returns: undefined
+      }
       user_can_view_course: {
         Args: { course_id: string; user_id: string }
         Returns: boolean

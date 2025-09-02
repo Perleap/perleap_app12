@@ -21,11 +21,31 @@ serve(async (req) => {
   try {
     console.log("Processing POST request");
 
-    // Initialize Supabase client
+    // Initialize Supabase client with user authorization
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: { Authorization: req.headers.get('Authorization')! },
+        },
+      }
     );
+
+    // Verify user is authenticated
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (!user) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Unauthorized - Please sign in'
+      }), {
+        status: 401,
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        },
+      });
+    }
 
     // Check OpenAI API key
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');

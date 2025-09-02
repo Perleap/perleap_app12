@@ -15,7 +15,7 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState<"teacher" | "student">("student");
+  
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -74,7 +74,6 @@ const Auth = () => {
           emailRedirectTo: `${window.location.origin}/`,
           data: {
             full_name: fullName,
-            role: role,
           },
         },
       });
@@ -190,18 +189,6 @@ const Auth = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                     />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-role">I am a...</Label>
-                    <Select value={role} onValueChange={(value: "teacher" | "student") => setRole(value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select your role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="student">Student</SelectItem>
-                        <SelectItem value="teacher">Teacher</SelectItem>
-                      </SelectContent>
-                    </Select>
                   </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? "Creating account..." : "Create Account"}
