@@ -87,7 +87,9 @@ export const CourseSubcategoryFilter = ({
       if (error) throw error;
       
       const uniqueSubcategories = [...new Set(
-        data?.map(item => item.sub_component_name).filter(Boolean) || []
+        data?.map(item => item.sub_component_name)
+          .filter(Boolean)
+          .filter(name => name !== 'AI Tutor') || []
       )];
       
       setSubcategories(uniqueSubcategories);
@@ -116,7 +118,7 @@ export const CourseSubcategoryFilter = ({
           <SelectContent className="bg-popover border-border z-50 max-h-[200px] overflow-y-auto">
             {courses.map((course) => (
               <SelectItem key={course.id} value={course.id}>
-                {course.title} ({course.subject})
+                {course.title}
               </SelectItem>
             ))}
           </SelectContent>
