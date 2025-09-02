@@ -50,12 +50,14 @@ export const StudentAnalyticsDetail = () => {
   const [sortBy, setSortBy] = useState<'date' | 'activity'>('date');
   const [student, setStudent] = useState<any>(null);
   const [course, setCourse] = useState<any>(null);
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
 
   useEffect(() => {
     // Get student and course data from location state
     if (location.state) {
       setStudent(location.state.student);
       setCourse(location.state.course);
+      setSelectedSubcategory(location.state.selectedSubcategory || null);
     }
     
     if (courseId && studentId) {
@@ -168,7 +170,7 @@ export const StudentAnalyticsDetail = () => {
                   {area === 'Primary Subject' ? (course?.title || area) : area}
                 </span>
                 <p className="text-xs text-muted-foreground">
-                  {data.ks_component === 'Core Knowledge' ? (course?.subcategory || data.ks_component) : data.ks_component}
+                  {selectedSubcategory || data.ks_component}
                 </p>
               </div>
               <div className="text-center">

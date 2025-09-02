@@ -54,7 +54,19 @@ export const SOFTSkillsChart = ({ data, title = "Average SOFT Skills Analysis" }
                 fontSize={12}
               />
               <YAxis fontSize={12} />
-              <Tooltip formatter={formatTooltip} />
+              <Tooltip 
+                formatter={formatTooltip}
+                contentStyle={{
+                  backgroundColor: 'hsl(var(--popover))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '6px',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                  color: 'hsl(var(--popover-foreground))'
+                }}
+                labelStyle={{
+                  color: 'hsl(var(--popover-foreground))'
+                }}
+              />
               <Legend />
               <Bar 
                 dataKey="averageDevStage" 

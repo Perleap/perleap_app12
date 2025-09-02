@@ -264,7 +264,8 @@ export const TeacherAnalytics = () => {
           email: student.studentEmail,
           user_id: student.studentId
         },
-        course: selectedCourse
+        course: selectedCourse,
+        selectedSubcategory: selectedSubcategory && selectedSubcategory !== 'all' ? selectedSubcategory : null
       }
     });
   };
