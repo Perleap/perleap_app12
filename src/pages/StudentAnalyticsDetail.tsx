@@ -34,6 +34,7 @@ interface Assessment {
     activities: {
       title: string;
       goal: string;
+      component_name: string;
     };
   };
 }
@@ -77,7 +78,8 @@ export const StudentAnalyticsDetail = () => {
           activity_runs (
             activities (
               title,
-              goal
+              goal,
+              component_name
             )
           )
         `)
@@ -170,7 +172,7 @@ export const StudentAnalyticsDetail = () => {
                   {area === 'Primary Subject' ? (course?.title || area) : area}
                 </span>
                 <p className="text-xs text-muted-foreground">
-                  {selectedSubcategory || data.ks_component}
+                  {selectedAssessment?.activity_runs?.activities?.component_name || data.ks_component || 'Core Knowledge'}
                 </p>
               </div>
               <div className="text-center">
