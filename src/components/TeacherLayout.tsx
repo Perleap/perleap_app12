@@ -15,6 +15,8 @@ import {
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import { Link } from "react-router-dom";
+import { LanguageToggle } from "@/components/LanguageToggle";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TeacherLayoutProps {
   children: React.ReactNode;
@@ -26,6 +28,7 @@ export const TeacherLayout = ({ children, title }: TeacherLayoutProps) => {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [profile, setProfile] = useState<any>(null);
   const { user, signOut } = useAuth();
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (user) {
@@ -97,7 +100,7 @@ export const TeacherLayout = ({ children, title }: TeacherLayoutProps) => {
     if (user?.email) {
       return user.email.split('@')[0];
     }
-    return 'Teacher';
+    return t('common.teacher');
   };
 
   return (
@@ -117,10 +120,11 @@ export const TeacherLayout = ({ children, title }: TeacherLayoutProps) => {
           </div>
           
           <div className="flex items-center space-x-4">
+            <LanguageToggle />
             <div className="relative">
               <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
               <Input 
-                placeholder="Search..." 
+                placeholder={t('dashboard.search')} 
                 className="pl-10 w-64"
               />
             </div>
@@ -139,7 +143,7 @@ export const TeacherLayout = ({ children, title }: TeacherLayoutProps) => {
               <DropdownMenuContent align="end" className="w-80">
                 {notifications.length === 0 ? (
                   <div className="p-4 text-center text-muted-foreground">
-                    No new notifications
+                    {t('dashboard.notifications')}
                   </div>
                 ) : (
                   notifications.map((notification) => (
@@ -177,13 +181,13 @@ export const TeacherLayout = ({ children, title }: TeacherLayoutProps) => {
                 <DropdownMenuItem asChild>
                   <Link to="/teacher/settings" className="w-full">
                     <Settings className="w-4 h-4 mr-2" />
-                    Settings
+                    {t('nav.settings')}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={signOut}>
                   <LogOut className="w-4 h-4 mr-2" />
-                  Logout
+                  {t('nav.logout')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

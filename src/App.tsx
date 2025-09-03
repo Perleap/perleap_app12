@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/components/theme-provider";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import { StudentDashboard } from "./pages/StudentDashboard";
@@ -30,11 +31,12 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-      <TooltipProvider>
-        <Toaster />
-        <BrowserRouter>
-          <AuthProvider>
+    <LanguageProvider>
+      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+        <TooltipProvider>
+          <Toaster />
+          <BrowserRouter>
+            <AuthProvider>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
@@ -67,6 +69,7 @@ const App = () => (
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>
+    </LanguageProvider>
   </QueryClientProvider>
 );
 

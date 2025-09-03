@@ -4,7 +4,9 @@ import { useLocation, Link } from "react-router-dom";
 import { BookOpen, Users, BarChart3, Settings, User, Database, Calendar, LogOut, LogIn, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageToggle } from "@/components/LanguageToggle";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 interface NavigationProps {
@@ -14,22 +16,23 @@ interface NavigationProps {
 export const Navigation = ({ userRole }: NavigationProps) => {
   const location = useLocation();
   const { user, userRole: detectedRole, signOut } = useAuth();
+  const { t } = useLanguage();
   
   // Use detected role from auth context, fallback to prop
   const currentRole = userRole || detectedRole;
   
   const teacherNavItems = [
-    { icon: Users, label: "Classes", path: "/teacher/classes" },
-    { icon: Database, label: "Database", path: "/teacher/database" },
-    { icon: Calendar, label: "Calendar", path: "/teacher/calendar" },
-    { icon: BarChart3, label: "Analytics", path: "/teacher/analytics" },
-    { icon: Settings, label: "Settings", path: "/teacher/settings" },
+    { icon: Users, label: t('nav.classes'), path: "/teacher/classes" },
+    { icon: Database, label: t('nav.database'), path: "/teacher/database" },
+    { icon: Calendar, label: t('nav.calendar'), path: "/teacher/calendar" },
+    { icon: BarChart3, label: t('nav.analytics'), path: "/teacher/analytics" },
+    { icon: Settings, label: t('nav.settings'), path: "/teacher/settings" },
   ];
 
   const studentNavItems = [
-    { icon: BookOpen, label: "My Perleaps", path: "/student/courses" },
-    { icon: BarChart3, label: "Progress", path: "/student/progress" },
-    { icon: User, label: "Profile", path: "/student/profile" },
+    { icon: BookOpen, label: t('nav.courses'), path: "/student/courses" },
+    { icon: BarChart3, label: t('nav.progress'), path: "/student/progress" },
+    { icon: User, label: t('nav.profile'), path: "/student/profile" },
   ];
 
   const navItems = currentRole === "teacher" ? teacherNavItems : studentNavItems;
@@ -43,7 +46,7 @@ export const Navigation = ({ userRole }: NavigationProps) => {
             alt="Perleap Logo" 
             className="w-10 h-10 rounded-lg object-contain"
           />
-          <span className="text-xl font-bold text-primary">Perleap</span>
+          <span className="text-xl font-bold text-primary">{t('common.perleap')}</span>
         </Link>
         
         <div className="flex items-center space-x-1">
@@ -68,25 +71,26 @@ export const Navigation = ({ userRole }: NavigationProps) => {
       </div>
 
       <div className="flex items-center space-x-3">
+        <LanguageToggle />
         <ThemeToggle />
         {user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
                 <User className="w-4 h-4 mr-2" />
-                Profile
+                {t('nav.profile')}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
                 <Link to={`/${currentRole}/settings`} className="w-full">
                   <Settings className="w-4 h-4 mr-2" />
-                  Settings
+                  {t('nav.settings')}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={signOut}>
                 <LogOut className="w-4 h-4 mr-2" />
-                Logout
+                {t('nav.logout')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -95,13 +99,13 @@ export const Navigation = ({ userRole }: NavigationProps) => {
             <Button variant="outline" size="sm" asChild>
               <Link to="/auth">
                 <LogIn className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Login</span>
+                <span className="hidden sm:inline">{t('nav.login')}</span>
               </Link>
             </Button>
             <Button variant="default" size="sm" asChild>
               <Link to="/auth">
                 <UserPlus className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Register</span>
+                <span className="hidden sm:inline">{t('nav.register')}</span>
               </Link>
             </Button>
           </>
