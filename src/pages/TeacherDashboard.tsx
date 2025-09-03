@@ -55,21 +55,44 @@ export const TeacherDashboard = () => {
           .select('id', { count: 'exact' })
           .in('course_id', courseIds);
 
-        // Get completed assignments count
-        const { count: completedCount } = await supabase
-          .from('activity_runs')
-          .select('id', { count: 'exact' })
-          .eq('status', 'completed')
-          .in('activity_id', courseIds.length > 0 ? 
-            (await supabase.from('activities').select('id').in('course_id', courseIds)).data?.map(a => a.id) || [] 
-            : []
-          );
+        // Get total and completed assignments count
+        let totalAssignments = 0;
+        let completedCount = 0;
+
+        if (courseIds.length > 0) {
+          const { data: activities } = await supabase
+            .from('activities')
+            .select('id')
+            .in('course_id', courseIds);
+
+          const activityIds = activities?.map(a => a.id) || [];
+
+          if (activityIds.length > 0) {
+            // Get total activity runs
+            const { count: totalRuns } = await supabase
+              .from('activity_runs')
+              .select('id', { count: 'exact' })
+              .in('activity_id', activityIds);
+
+            // Get completed activity runs
+            const { count: completed } = await supabase
+              .from('activity_runs')
+              .select('id', { count: 'exact' })
+              .eq('status', 'completed')
+              .in('activity_id', activityIds);
+
+            totalAssignments = totalRuns || 0;
+            completedCount = completed || 0;
+          }
+        }
+
+        const completionRate = totalAssignments > 0 ? Math.round((completedCount / totalAssignments) * 100) : 0;
 
         setDashboardStats({
           totalStudents: studentsCount || 0,
           totalCourses: courses?.length || 0,
           totalActivities: activitiesCount || 0,
-          completedAssignments: completedCount || 0
+          completedAssignments: completionRate
         });
       } catch (error) {
         console.error('Error fetching dashboard stats:', error);
@@ -102,8 +125,8 @@ export const TeacherDashboard = () => {
               className="bg-blue-600/10 border-blue-600/20"
             />
             <DashboardCard
-              title="Completed"
-              value={dashboardStats.completedAssignments}
+              title="Completion Rate"
+              value={`${dashboardStats.completedAssignments}%`}
               icon={Building2}
               className="bg-orange-500/10 border-orange-500/20"
             />

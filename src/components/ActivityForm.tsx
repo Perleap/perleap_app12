@@ -36,6 +36,7 @@ interface ActivityFormProps {
 export const ActivityForm = ({ courseId, onActivityAdded, trigger, editActivity, onClose }: ActivityFormProps) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [courseSubcategories, setCourseSubcategories] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     title: editActivity?.title || '',
     component_name: editActivity?.component_name || '',
@@ -55,6 +56,29 @@ export const ActivityForm = ({ courseId, onActivityAdded, trigger, editActivity,
       setOpen(true);
     }
   }, [editActivity]);
+
+  React.useEffect(() => {
+    fetchCourseSubcategories();
+  }, [courseId]);
+
+  const fetchCourseSubcategories = async () => {
+    try {
+      const { data: courseData, error } = await supabase
+        .from('courses')
+        .select('subcategory')
+        .eq('id', courseId)
+        .single();
+
+      if (error) throw error;
+      
+      if (courseData?.subcategory) {
+        const subcategories = courseData.subcategory.split(', ').filter(Boolean);
+        setCourseSubcategories(subcategories);
+      }
+    } catch (error) {
+      console.error('Error fetching course subcategories:', error);
+    }
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -164,12 +188,18 @@ export const ActivityForm = ({ courseId, onActivityAdded, trigger, editActivity,
             
             <div className="space-y-2">
               <Label htmlFor="component_name">Component Name</Label>
-              <Input
-                id="component_name"
-                value={formData.component_name}
-                onChange={(e) => handleInputChange('component_name', e.target.value)}
-                placeholder="e.g., Algebra"
-              />
+              <Select value={formData.component_name} onValueChange={(value) => handleInputChange('component_name', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select component name" />
+                </SelectTrigger>
+                <SelectContent>
+                  {courseSubcategories.map((subcategory) => (
+                    <SelectItem key={subcategory} value={subcategory}>
+                      {subcategory}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             
             <div className="space-y-2">

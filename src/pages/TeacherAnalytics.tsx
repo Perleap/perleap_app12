@@ -127,7 +127,7 @@ export const TeacherAnalytics = () => {
           .from('activities')
           .select('id')
           .eq('course_id', selectedCourse.id)
-          .eq('sub_component_name', selectedSubcategory);
+          .eq('component_name', selectedSubcategory);
 
         if (activitiesData && activitiesData.length > 0) {
           const activityIds = activitiesData.map(a => a.id);

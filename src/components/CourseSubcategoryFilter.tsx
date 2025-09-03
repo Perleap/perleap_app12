@@ -78,6 +78,22 @@ export const CourseSubcategoryFilter = ({
 
   const fetchSubcategories = async (courseId: string) => {
     try {
+      // First try to get subcategories from the course itself
+      const { data: courseData, error: courseError } = await supabase
+        .from('courses')
+        .select('subcategory')
+        .eq('id', courseId)
+        .single();
+
+      if (courseError) throw courseError;
+      
+      if (courseData?.subcategory) {
+        const subcategories = courseData.subcategory.split(', ').filter(Boolean);
+        setSubcategories(subcategories);
+        return;
+      }
+
+      // Fallback to activities if no subcategories in course
       const { data, error } = await supabase
         .from('activities')
         .select('sub_component_name')
