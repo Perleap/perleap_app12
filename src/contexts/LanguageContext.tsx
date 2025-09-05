@@ -45,6 +45,23 @@ const translations = {
     'stats.myCourses': 'My Courses',
     'stats.activities': 'Activities',
     'stats.completionRate': 'Completion Rate',
+    
+    // Student Data Table
+    'table.recentActivity': 'Recent Student Activity',
+    'table.students': 'Students',
+    'table.student': 'Student',
+    'table.course': 'Course',
+    'table.lastActivity': 'Last Activity',
+    'table.status': 'Status',
+    'table.latest': 'Latest',
+    'table.loading': 'Loading...',
+    'table.noData': 'No student activity data available.',
+    
+    // Status Labels
+    'status.completed': 'Completed',
+    'status.inProgress': 'In Progress',
+    'status.notStarted': 'Not Started',
+    'status.unknown': 'Unknown',
   },
   he: {
     // Navigation
@@ -79,6 +96,23 @@ const translations = {
     'stats.myCourses': 'הקורסים שלי',
     'stats.activities': 'פעילויות',
     'stats.completionRate': 'אחוז השלמה',
+    
+    // Student Data Table
+    'table.recentActivity': 'פעילות תלמידים אחרונה',
+    'table.students': 'תלמידים',
+    'table.student': 'תלמיד',
+    'table.course': 'קורס',
+    'table.lastActivity': 'פעילות אחרונה',
+    'table.status': 'סטטוס',
+    'table.latest': 'אחרון',
+    'table.loading': 'טוען...',
+    'table.noData': 'אין נתוני פעילות תלמידים זמינים.',
+    
+    // Status Labels
+    'status.completed': 'הושלם',
+    'status.inProgress': 'בתהליך',
+    'status.notStarted': 'לא התחיל',
+    'status.unknown': 'לא ידוע',
   }
 };
 

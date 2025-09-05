@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface StudentData {
   id: string;
@@ -13,6 +14,7 @@ interface StudentData {
 }
 
 export const StudentDataTable = () => {
+  const { t } = useLanguage();
   const [studentData, setStudentData] = useState<StudentData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -62,7 +64,7 @@ export const StudentDataTable = () => {
               const run = latestRun?.[0];
               
               return {
-                id: enrollment.student_id,
+                id: `${enrollment.student_id}-${enrollment.courses.id}`,
                 name: enrollment.profiles?.full_name || enrollment.profiles?.email || 'Unknown',
                 course: enrollment.courses.title,
                 lastActivity: run?.completed_at 
@@ -99,18 +101,18 @@ export const StudentDataTable = () => {
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'completed': return 'Completed';
-      case 'in_progress': return 'In Progress';
-      case 'not_started': return 'Not Started';
-      default: return 'Unknown';
+      case 'completed': return t('status.completed');
+      case 'in_progress': return t('status.inProgress');
+      case 'not_started': return t('status.notStarted');
+      default: return t('status.unknown');
     }
   };
 
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-primary">Recent Student Activity</h3>
-        <div className="text-sm text-muted-foreground">Loading...</div>
+        <h3 className="text-lg font-semibold text-primary">{t('table.recentActivity')}</h3>
+        <div className="text-sm text-muted-foreground">{t('table.loading')}</div>
       </div>
     );
   }
@@ -118,25 +120,25 @@ export const StudentDataTable = () => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-primary">Recent Student Activity</h3>
+        <h3 className="text-lg font-semibold text-primary">{t('table.recentActivity')}</h3>
         <div className="flex items-center space-x-2">
-          <span className="text-sm text-muted-foreground">Latest</span>
+          <span className="text-sm text-muted-foreground">{t('table.latest')}</span>
           <Badge variant="outline" className="bg-primary text-primary-foreground">
-            Students
+            {t('table.students')}
           </Badge>
         </div>
       </div>
 
       {studentData.length === 0 ? (
-        <div className="text-sm text-muted-foreground">No student activity data available.</div>
+        <div className="text-sm text-muted-foreground">{t('table.noData')}</div>
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[200px]">Student</TableHead>
-              <TableHead>Course</TableHead>
-              <TableHead>Last Activity</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead className="w-[200px]">{t('table.student')}</TableHead>
+              <TableHead>{t('table.course')}</TableHead>
+              <TableHead>{t('table.lastActivity')}</TableHead>
+              <TableHead>{t('table.status')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
