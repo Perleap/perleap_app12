@@ -62,6 +62,48 @@ const translations = {
     'status.inProgress': 'In Progress',
     'status.notStarted': 'Not Started',
     'status.unknown': 'Unknown',
+    
+    // Sidebar Navigation
+    'sidebar.dashboard': 'Dashboard',
+    'sidebar.classes': 'Classes',
+    'sidebar.database': 'Database',
+    'sidebar.calendar': 'Calendar',
+    'sidebar.analytics': 'Analytics',
+    'sidebar.settings': 'Settings',
+    
+    // Charts
+    'chart.completedActivitiesByCourse': 'Completed Activities by Course',
+    'chart.overallProgress': 'Overall Progress',
+    'chart.completed': 'Completed',
+    'chart.remaining': 'Remaining',
+    'chart.loadingStats': 'Loading statistics...',
+    'chart.noActivityData': 'No activity data available',
+    
+    // Notifications
+    'notifications.recentNotifications': 'Recent Notifications',
+    'notifications.noNotifications': 'No notifications available.',
+    'notifications.loading': 'Loading...',
+    
+    // Calendar
+    'calendar.january': 'January',
+    'calendar.february': 'February',
+    'calendar.march': 'March',
+    'calendar.april': 'April',
+    'calendar.may': 'May',
+    'calendar.june': 'June',
+    'calendar.july': 'July',
+    'calendar.august': 'August',
+    'calendar.september': 'September',
+    'calendar.october': 'October',
+    'calendar.november': 'November',
+    'calendar.december': 'December',
+    'calendar.sun': 'Sun',
+    'calendar.mon': 'Mon',
+    'calendar.tue': 'Tue',
+    'calendar.wed': 'Wed',
+    'calendar.thu': 'Thu',
+    'calendar.fri': 'Fri',
+    'calendar.sat': 'Sat',
   },
   he: {
     // Navigation
@@ -113,6 +155,48 @@ const translations = {
     'status.inProgress': 'בתהליך',
     'status.notStarted': 'לא התחיל',
     'status.unknown': 'לא ידוע',
+    
+    // Sidebar Navigation
+    'sidebar.dashboard': 'לוח בקרה',
+    'sidebar.classes': 'כיתות',
+    'sidebar.database': 'מסד נתונים',
+    'sidebar.calendar': 'לוח שנה',
+    'sidebar.analytics': 'ניתוחים',
+    'sidebar.settings': 'הגדרות',
+    
+    // Charts
+    'chart.completedActivitiesByCourse': 'פעילויות שהושלמו לפי קורס',
+    'chart.overallProgress': 'התקדמות כללית',
+    'chart.completed': 'הושלם',
+    'chart.remaining': 'נותר',
+    'chart.loadingStats': 'טוען סטטיסטיקות...',
+    'chart.noActivityData': 'אין נתוני פעילות זמינים',
+    
+    // Notifications
+    'notifications.recentNotifications': 'התראות אחרונות',
+    'notifications.noNotifications': 'אין התראות זמינות.',
+    'notifications.loading': 'טוען...',
+    
+    // Calendar
+    'calendar.january': 'ינואר',
+    'calendar.february': 'פברואר',
+    'calendar.march': 'מרץ',
+    'calendar.april': 'אפריל',
+    'calendar.may': 'מאי',
+    'calendar.june': 'יוני',
+    'calendar.july': 'יולי',
+    'calendar.august': 'אוגוסט',
+    'calendar.september': 'ספטמבר',
+    'calendar.october': 'אוקטובר',
+    'calendar.november': 'נובמבר',
+    'calendar.december': 'דצמבר',
+    'calendar.sun': 'א\'',
+    'calendar.mon': 'ב\'',
+    'calendar.tue': 'ג\'',
+    'calendar.wed': 'ד\'',
+    'calendar.thu': 'ה\'',
+    'calendar.fri': 'ו\'',
+    'calendar.sat': 'ש\'',
   }
 };
 

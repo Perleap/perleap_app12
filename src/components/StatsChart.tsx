@@ -1,6 +1,7 @@
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ActivityData {
   name: string;
@@ -14,6 +15,7 @@ interface CourseProgress {
 }
 
 export const StatsChart = () => {
+  const { t } = useLanguage();
   const [activityData, setActivityData] = useState<ActivityData[]>([]);
   const [courseProgress, setCourseProgress] = useState<CourseProgress[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -86,8 +88,8 @@ export const StatsChart = () => {
           : 0;
 
         setCourseProgress([
-          { name: 'Completed', value: completedPercentage, color: '#3B82F6' },
-          { name: 'Remaining', value: 100 - completedPercentage, color: '#E5E7EB' }
+          { name: t('chart.completed'), value: completedPercentage, color: '#3B82F6' },
+          { name: t('chart.remaining'), value: 100 - completedPercentage, color: '#E5E7EB' }
         ]);
 
       } catch (error) {
@@ -103,7 +105,7 @@ export const StatsChart = () => {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="text-sm text-muted-foreground">Loading statistics...</div>
+        <div className="text-sm text-muted-foreground">{t('chart.loadingStats')}</div>
       </div>
     );
   }
@@ -111,9 +113,9 @@ export const StatsChart = () => {
     <div className="space-y-6">
       {/* Bar Chart */}
       <div>
-        <h3 className="text-sm font-medium text-muted-foreground mb-4">Completed Activities by Course</h3>
+        <h3 className="text-sm font-medium text-muted-foreground mb-4">{t('chart.completedActivitiesByCourse')}</h3>
         {activityData.length === 0 ? (
-          <div className="text-sm text-muted-foreground">No activity data available</div>
+          <div className="text-sm text-muted-foreground">{t('chart.noActivityData')}</div>
         ) : (
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={activityData}>
@@ -141,7 +143,7 @@ export const StatsChart = () => {
       {/* Pie Chart */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-medium text-muted-foreground">Overall Progress</h3>
+          <h3 className="text-sm font-medium text-muted-foreground">{t('chart.overallProgress')}</h3>
           <span className="text-2xl font-bold text-primary">{courseProgress[0]?.value || 0}%</span>
         </div>
         <ResponsiveContainer width="100%" height={120}>
@@ -165,11 +167,11 @@ export const StatsChart = () => {
         <div className="flex items-center justify-center space-x-4 mt-2">
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 rounded-full bg-primary"></div>
-            <span className="text-xs text-muted-foreground">Completed</span>
+            <span className="text-xs text-muted-foreground">{t('chart.completed')}</span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 rounded-full bg-muted"></div>
-            <span className="text-xs text-muted-foreground">Remaining</span>
+            <span className="text-xs text-muted-foreground">{t('chart.remaining')}</span>
           </div>
         </div>
       </div>

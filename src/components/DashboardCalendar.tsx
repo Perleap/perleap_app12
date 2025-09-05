@@ -3,16 +3,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const DashboardCalendar = () => {
+  const { t } = useLanguage();
   const [currentDate, setCurrentDate] = useState(new Date(2022, 0)); // January 2022
 
   const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+    t('calendar.january'), t('calendar.february'), t('calendar.march'), 
+    t('calendar.april'), t('calendar.may'), t('calendar.june'),
+    t('calendar.july'), t('calendar.august'), t('calendar.september'), 
+    t('calendar.october'), t('calendar.november'), t('calendar.december')
   ];
 
-  const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const daysOfWeek = [
+    t('calendar.sun'), t('calendar.mon'), t('calendar.tue'), 
+    t('calendar.wed'), t('calendar.thu'), t('calendar.fri'), t('calendar.sat')
+  ];
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();

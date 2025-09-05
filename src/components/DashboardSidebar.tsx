@@ -15,15 +15,7 @@ import {
 import perleapLogo from "@/assets/perleap-logo-new.png";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-
-const sidebarItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/teacher/dashboard" },
-  { icon: BookOpen, label: "Classes", path: "/teacher/classes" },
-  { icon: Database, label: "Database", path: "/teacher/database" },
-  { icon: Calendar, label: "Calendar", path: "/teacher/calendar" },
-  { icon: BarChart3, label: "Analytics", path: "/teacher/analytics" },
-  { icon: Settings, label: "Settings", path: "/teacher/settings" },
-];
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface DashboardSidebarProps {
   collapsed: boolean;
@@ -31,6 +23,16 @@ interface DashboardSidebarProps {
 }
 
 export const DashboardSidebar = ({ collapsed, onToggle }: DashboardSidebarProps) => {
+  const { t } = useLanguage();
+  
+  const sidebarItems = [
+    { icon: LayoutDashboard, label: t('sidebar.dashboard'), path: "/teacher/dashboard" },
+    { icon: BookOpen, label: t('sidebar.classes'), path: "/teacher/classes" },
+    { icon: Database, label: t('sidebar.database'), path: "/teacher/database" },
+    { icon: Calendar, label: t('sidebar.calendar'), path: "/teacher/calendar" },
+    { icon: BarChart3, label: t('sidebar.analytics'), path: "/teacher/analytics" },
+    { icon: Settings, label: t('sidebar.settings'), path: "/teacher/settings" },
+  ];
   return (
     <div className={cn(
       "h-screen bg-card border-r border-border transition-all duration-300 flex flex-col",
@@ -46,7 +48,7 @@ export const DashboardSidebar = ({ collapsed, onToggle }: DashboardSidebarProps)
                 alt="Perleap Logo" 
                 className="w-8 h-8 rounded-lg object-contain"
               />
-              <span className="font-bold text-primary">Perleap</span>
+              <span className="font-bold text-primary">{t('common.perleap')}</span>
             </div>
           )}
           <Button
@@ -63,7 +65,7 @@ export const DashboardSidebar = ({ collapsed, onToggle }: DashboardSidebarProps)
       {/* Navigation */}
       <nav className="flex-1 p-4">
         <div className="space-y-2">
-          {sidebarItems.map((item) => (
+            {sidebarItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}

@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Calendar, Clock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Notice {
   id: string;
@@ -14,6 +15,7 @@ interface Notice {
 }
 
 export const NoticeBoard = () => {
+  const { t } = useLanguage();
   const [notices, setNotices] = useState<Notice[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -45,8 +47,8 @@ export const NoticeBoard = () => {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-primary">Recent Notifications</h3>
-        <div className="text-sm text-muted-foreground">Loading...</div>
+        <h3 className="text-lg font-semibold text-primary">{t('notifications.recentNotifications')}</h3>
+        <div className="text-sm text-muted-foreground">{t('notifications.loading')}</div>
       </div>
     );
   }
@@ -54,11 +56,11 @@ export const NoticeBoard = () => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-primary">Recent Notifications</h3>
+        <h3 className="text-lg font-semibold text-primary">{t('notifications.recentNotifications')}</h3>
       </div>
 
       {notices.length === 0 ? (
-        <div className="text-sm text-muted-foreground">No notifications available.</div>
+        <div className="text-sm text-muted-foreground">{t('notifications.noNotifications')}</div>
       ) : (
         <div className="space-y-3">
           {notices.map((notice) => (
