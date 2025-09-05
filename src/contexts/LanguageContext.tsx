@@ -38,6 +38,13 @@ const translations = {
     'common.perleap': 'Perleap',
     'common.teacher': 'Teacher',
     'common.student': 'Student',
+    'common.dashboard': 'Dashboard',
+    
+    // Dashboard Stats
+    'stats.totalStudents': 'Total Students',
+    'stats.myCourses': 'My Courses',
+    'stats.activities': 'Activities',
+    'stats.completionRate': 'Completion Rate',
   },
   he: {
     // Navigation
@@ -65,6 +72,13 @@ const translations = {
     'common.perleap': 'פרליפ',
     'common.teacher': 'מורה',
     'common.student': 'תלמיד',
+    'common.dashboard': 'לוח בקרה',
+    
+    // Dashboard Stats
+    'stats.totalStudents': 'סה״כ תלמידים',
+    'stats.myCourses': 'הקורסים שלי',
+    'stats.activities': 'פעילויות',
+    'stats.completionRate': 'אחוז השלמה',
   }
 };
 

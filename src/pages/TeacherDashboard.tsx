@@ -20,8 +20,10 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const TeacherDashboard = () => {
+  const { t } = useLanguage();
   const [dashboardStats, setDashboardStats] = useState({
     totalStudents: 0,
     totalCourses: 0,
@@ -103,29 +105,29 @@ export const TeacherDashboard = () => {
   }, []);
 
   return (
-    <TeacherLayout title="Dashboard">
+    <TeacherLayout title={t('common.dashboard')}>
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <DashboardCard
-              title="Total Students"
+              title={t('stats.totalStudents')}
               value={dashboardStats.totalStudents}
               icon={Users}
               className="bg-blue-500/10 border-blue-500/20"
             />
             <DashboardCard
-              title="My Courses"
+              title={t('stats.myCourses')}
               value={dashboardStats.totalCourses}
               icon={BookOpen}
               className="bg-green-500/10 border-green-500/20"
             />
             <DashboardCard
-              title="Activities"
+              title={t('stats.activities')}
               value={dashboardStats.totalActivities}
               icon={GraduationCap}
               className="bg-blue-600/10 border-blue-600/20"
             />
             <DashboardCard
-              title="Completion Rate"
+              title={t('stats.completionRate')}
               value={`${dashboardStats.completedAssignments}%`}
               icon={Building2}
               className="bg-orange-500/10 border-orange-500/20"
