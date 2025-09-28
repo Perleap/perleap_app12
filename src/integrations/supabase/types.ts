@@ -539,6 +539,14 @@ export type Database = {
         Args: { course_id: string; user_id: string }
         Returns: boolean
       }
+      user_is_course_teacher: {
+        Args: { course_id: string; user_id: string }
+        Returns: boolean
+      }
+      user_is_enrolled_in_course: {
+        Args: { course_id: string; user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
