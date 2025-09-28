@@ -47,8 +47,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [userRole, setUserRole] = useState<'teacher' | 'student' | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchUserRole = async (userId: string) => {
+  const fetchUserRole = async (userId: string, userMetadata?: any) => {
     try {
+      // First try to get role from profiles table
       const { data, error } = await supabase
         .from('profiles')
         .select('role')
@@ -56,14 +57,26 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         .single();
 
       if (error) {
-        console.error('Error fetching user role:', error);
-        return null;
+        console.error('Error fetching user role from database:', error);
+        // Fallback to user metadata role if database fails
+        const metaRole = userMetadata?.role;
+        if (metaRole === 'teacher' || metaRole === 'student') {
+          console.log('Using role from user metadata:', metaRole);
+          return metaRole as 'teacher' | 'student';
+        }
+        return 'student'; // Default fallback
       }
 
       return data?.role as 'teacher' | 'student' | null;
     } catch (error) {
       console.error('Error fetching user role:', error);
-      return null;
+      // Fallback to user metadata role
+      const metaRole = userMetadata?.role;
+      if (metaRole === 'teacher' || metaRole === 'student') {
+        console.log('Using role from user metadata (catch):', metaRole);
+        return metaRole as 'teacher' | 'student';
+      }
+      return 'student'; // Default fallback
     }
   };
 
@@ -106,7 +119,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         if (session?.user) {
           // Defer role fetching to prevent deadlocks
           setTimeout(async () => {
-            const role = await fetchUserRole(session.user.id);
+            const role = await fetchUserRole(session.user.id, session.user.user_metadata);
             setUserRole(role);
             setLoading(false);
           }, 0);
@@ -123,7 +136,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        const role = await fetchUserRole(session.user.id);
+        const role = await fetchUserRole(session.user.id, session.user.user_metadata);
         setUserRole(role);
       }
       
