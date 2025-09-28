@@ -48,6 +48,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [loading, setLoading] = useState(true);
 
   const fetchUserRole = async (userId: string, userMetadata?: any) => {
+    console.log('fetchUserRole called with:', { userId, userMetadata });
     try {
       // First try to get role from profiles table
       const { data, error } = await supabase
@@ -60,6 +61,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         console.error('Error fetching user role from database:', error);
         // Fallback to user metadata role if database fails
         const metaRole = userMetadata?.role;
+        console.log('Falling back to metadata role:', metaRole);
         if (metaRole === 'teacher' || metaRole === 'student') {
           console.log('Using role from user metadata:', metaRole);
           return metaRole as 'teacher' | 'student';
@@ -67,11 +69,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         return 'student'; // Default fallback
       }
 
+      console.log('Successfully fetched role from database:', data?.role);
       return data?.role as 'teacher' | 'student' | null;
     } catch (error) {
       console.error('Error fetching user role:', error);
       // Fallback to user metadata role
       const metaRole = userMetadata?.role;
+      console.log('Catch block - using metadata role:', metaRole);
       if (metaRole === 'teacher' || metaRole === 'student') {
         console.log('Using role from user metadata (catch):', metaRole);
         return metaRole as 'teacher' | 'student';

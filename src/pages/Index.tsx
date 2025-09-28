@@ -2,10 +2,31 @@ import { HeroSection } from "@/components/HeroSection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, MessageSquare, BarChart3, TrendingUp } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
+  const { user, userRole, loading } = useAuth();
+  
+  // Show loading spinner while checking auth state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+  
+  // Redirect authenticated users to their appropriate dashboard
+  if (user && userRole) {
+    if (userRole === 'teacher') {
+      return <Navigate to="/teacher/dashboard" replace />;
+    } else if (userRole === 'student') {
+      return <Navigate to="/student/dashboard" replace />;
+    }
+  }
+  
   return (
     <div className="min-h-screen bg-gradient-subtle">
       {/* Navigation */}
